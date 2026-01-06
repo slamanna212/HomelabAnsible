@@ -17,8 +17,8 @@ want_facts: true
 # For QEMU VMs: extract from guest agent interfaces (proxmox_agent_interfaces)
 # For LXC containers: extract from proxmox_net0.ip
 compose:
-  # First try agent interfaces (get first non-lo interface by name), then fall back to net0.ip for LXC
-  ansible_host: ((proxmox_agent_interfaces | default([]) | selectattr('name', 'in', ['eth0', 'ens18', 'ens19', 'ens20']) | list | first | default({}))['ip-addresses'] | default([]) | select('match', '^[0-9]{1,3}\\.') | reject('match', '^127\\.') | reject('match', '^172\\.(1[6-9]|2[0-9]|3[0-1])\\.') | list | first | default(proxmox_net0.ip | default(''))) | regex_replace('/.*$', '')
+  # Extract IP from guest agent (QEMU) or net0 (LXC)
+  ansible_host: (proxmox_agent_interfaces[1]['ip-addresses'][0] if (proxmox_agent_interfaces is defined and proxmox_agent_interfaces | length > 1) else (proxmox_net0.ip if proxmox_net0.ip is defined else '')) | regex_replace('/.*', '')
 
 # Create groups based on VM tags
 keyed_groups:
