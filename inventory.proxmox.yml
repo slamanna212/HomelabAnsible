@@ -1,10 +1,13 @@
 ---
 plugin: community.proxmox.proxmox
 
-# Connection details via environment variables
-# Required: PROXMOX_URL, PROXMOX_USER, PROXMOX_TOKEN_ID, PROXMOX_TOKEN_SECRET
-# The user should be the username part of the token (e.g., ansible@pam)
-# The token_id is the full token identifier (e.g., ansible@pam!semaphore)
+# Explicitly set parameters from environment variables
+url: "{{ lookup('env', 'PROXMOX_URL') }}"
+user: "{{ lookup('env', 'PROXMOX_USER') }}"
+token_id: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
+token_secret: "{{ lookup('env', 'PROXMOX_TOKEN_SECRET') }}"
+
+# SSL certificate validation
 validate_certs: false
 
 # Gather VM facts
