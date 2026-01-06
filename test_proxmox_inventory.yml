@@ -1,0 +1,63 @@
+---
+- name: Test Proxmox Dynamic Inventory - Display Groups
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display all available groups
+      debug:
+        msg: "{{ groups.keys() | list | sort }}"
+
+    - name: Display host count per group
+      debug:
+        msg: "Group '{{ item }}' has {{ groups[item] | length }} host(s): {{ groups[item] | join(', ') }}"
+      loop: "{{ groups.keys() | list | sort }}"
+      when: item != 'all' and item != 'ungrouped'
+
+- name: Test Proxmox Dynamic Inventory - Display Host Details
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Display host information
+      debug:
+        msg: |
+          Hostname: {{ inventory_hostname }}
+          IP: {{ ansible_host | default('NOT SET') }}
+          Groups: {{ group_names | join(', ') }}
+          Python: {{ ansible_python_interpreter | default('NOT SET') }}
+          User: {{ ansible_user | default('NOT SET') }}
+
+- name: Test Proxmox Dynamic Inventory - Test Critical Patterns
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Test groups['groupname'] access
+      debug:
+        msg: "Groups access works - web group: {{ groups['web'] | default([]) }}"
+
+    - name: Test groups['groupname'][0] indexing
+      debug:
+        msg: "Array indexing works - first database: {{ groups['database'][0] | default('NONE') }}"
+      when: groups['database'] | default([]) | length > 0
+
+    - name: Test hostvars[host].ansible_host pattern
+      debug:
+        msg: "Hostvars access works - NFS server IP: {{ hostvars[groups['nfs-server'][0]].ansible_host | default('NONE') }}"
+      when: groups['nfs-server'] | default([]) | length > 0
+
+    - name: Test HAProxy iteration pattern
+      debug:
+        msg: "HAProxy pattern works - {{ item }} at {{ hostvars[item].ansible_host }}"
+      loop: "{{ groups['web'] | default([]) }}"
+
+- name: Test Proxmox Dynamic Inventory - Connectivity Test
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Test ping connectivity
+      ping:
+      register: ping_result
+
+    - name: Display connectivity status
+      debug:
+        msg: "✓ Connectivity successful for {{ inventory_hostname }} ({{ ansible_host }})"
+      when: ping_result is success

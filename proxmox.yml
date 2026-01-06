@@ -1,0 +1,26 @@
+---
+plugin: community.proxmox.proxmox_inventory
+
+# Connection details via environment variables
+# The plugin expects: PROXMOX_URL, PROXMOX_TOKEN_ID, PROXMOX_TOKEN_SECRET
+# In Semaphore, set ProxmoxIP and it will be mapped to PROXMOX_URL
+validate_certs: false
+
+# Gather VM facts
+want_facts: true
+
+# Use first IPv4 address as ansible_host
+compose:
+  ansible_host: ipv4_addresses[0] | default(ansible_host)
+  ansible_python_interpreter: /usr/bin/python3
+  ansible_user: ansible
+
+# Create groups based on VM tags
+# Each tag on a VM becomes a group
+keyed_groups:
+  - key: proxmox_tags_parsed
+    separator: ""
+
+# Create ubuntu meta-group for all VMs
+groups:
+  ubuntu: true
