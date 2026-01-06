@@ -16,7 +16,7 @@
     - mariadb
 
 - name: Configure and deploy the NFS Server
-  hosts: wc_file
+  hosts: wc_nfs
   become: true
   roles:
     - ubuntu  
