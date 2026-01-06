@@ -11,11 +11,12 @@
       loop: "{{ groups.keys() | list | sort }}"
       when: item != 'all' and item != 'ungrouped'
 
-- name: Debug all variables for one QEMU VM
-  hosts: proxmox_all_qemu
+- name: Debug all variables for one running QEMU VM
+  hosts: proxmox_all_running
   gather_facts: false
   tasks:
     - name: Show all proxmox variables
       debug:
         msg: "{{ hostvars[inventory_hostname] | dict2items | selectattr('key', 'match', '^proxmox_') | list }}"
+      when: inventory_hostname in groups['proxmox_all_qemu']
       run_once: true
