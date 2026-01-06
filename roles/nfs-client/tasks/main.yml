@@ -13,7 +13,7 @@
 
 - name: Mount the Web NFS Share
   ansible.posix.mount:
-    src: "{{ hostvars[groups['nfs-server'][0]].ansible_host }}:/mnt/Web"
+    src: "{{ hostvars[groups['wc_file'][0]].ansible_host }}:/mnt/Web"
     path: /mnt/Web
     opts: rw,sync,hard,nointr,fsc,actimeo=60
     state: mounted
