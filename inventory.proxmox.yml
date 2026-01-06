@@ -1,5 +1,5 @@
 ---
-plugin: community.proxmox.proxmox_inventory
+plugin: community.proxmox.proxmox
 
 # Connection details via environment variables
 # The plugin expects: PROXMOX_URL, PROXMOX_TOKEN_ID, PROXMOX_TOKEN_SECRET
