@@ -1,5 +1,5 @@
 ---
-- hosts: wp-admin[0]
+- hosts: wp-wpa[0]
   become: true
   vars:
     wp_sites: "{{ output.files|map(attribute='path')|map('basename')|list }}"
