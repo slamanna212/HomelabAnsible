@@ -12,3 +12,8 @@ validate_certs: false
 
 # Gather VM facts
 want_facts: true
+
+# Create groups based on VM tags
+keyed_groups:
+  - key: proxmox_tags_parsed
+    separator: ""
