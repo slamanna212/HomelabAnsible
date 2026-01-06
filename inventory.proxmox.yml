@@ -12,22 +12,3 @@ validate_certs: false
 
 # Gather VM facts
 want_facts: true
-
-# Exclude Proxmox nodes from inventory
-exclude_nodes: true
-
-# Temporarily removed compose to test if it's filtering VMs
-# compose:
-#   ansible_host: proxmox_ipconfig0.ip | default(proxmox_net0.ip) | default(ansible_host)
-#   ansible_python_interpreter: /usr/bin/python3
-#   ansible_user: ansible
-
-# Create groups based on VM tags
-# Each tag on a VM becomes a group
-keyed_groups:
-  - key: proxmox_tags_parsed
-    separator: ""
-
-# Create ubuntu meta-group for all VMs
-groups:
-  ubuntu: true
