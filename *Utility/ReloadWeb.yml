@@ -1,5 +1,5 @@
 ---
-    - hosts: web
+    - hosts: wc_web
       become: true
       tasks:
         - name: Reload Nginx and make sure it starts at boot
@@ -8,7 +8,7 @@
             enabled: yes
             state: reloaded
 
-    - hosts: wp-admin
+    - hosts: wc_wpa
       become: true
       tasks:
         - name: Reload Nginx and make sure it starts at boot
