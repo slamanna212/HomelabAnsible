@@ -9,21 +9,21 @@
         force: true
 
 - name: Configure and deploy the Database
-  hosts: database
+  hosts: wc_db
   become: true
   roles:
     - ubuntu
     - mariadb
 
 - name: Configure and deploy the NFS Server
-  hosts: nfs-server
+  hosts: wc_file
   become: true
   roles:
     - ubuntu  
     - nfs-server
 
 - name: Configure and deploy the Web Servers
-  hosts: web
+  hosts: wc_web
   become: true
   roles:
     - ubuntu
@@ -31,7 +31,7 @@
     - nginx
 
 - name: Configure and deploy the Wordpress Admin Servers
-  hosts: wp-admin
+  hosts: wc_wpa
   become: true
   roles:
     - ubuntu
@@ -40,17 +40,17 @@
     - wp-cron
 
 - name: Configure and deploy the Loadbalancer
-  hosts: loadbalancers
+  hosts: wc_loadbalancers
   become: true
   vars:
-    webnodes: "{{ groups['web'] }}"
-    wpanodes: "{{ groups['wp-admin'] }}"
+    webnodes: "{{ groups['wc_web'] }}"
+    wpanodes: "{{ groups['wc_wpa'] }}"
   roles:
     - ubuntu  
     - haproxy
 
 - name: Configure and deploy Tunnel
-  hosts: tunnel
+  hosts: wc_tun
   become: true
   roles:
     - ubuntu
@@ -62,19 +62,13 @@
     - ubuntu
 
 - name: Configure and deploy Health Server
-  hosts: zabbix-server
+  hosts: wc_zabbix
   become: true
   roles:
     - ubuntu
 
 - name: Configure and deploy AzuraCast Radio Server
   hosts: radio
-  become: true
-  roles:
-    - ubuntu
-
-- name: Configure and deploy Docker Host
-  hosts: docker
   become: true
   roles:
     - ubuntu
