@@ -2,8 +2,9 @@
 plugin: community.proxmox.proxmox
 
 # Connection details via environment variables
-# The plugin expects: PROXMOX_URL, PROXMOX_TOKEN_ID, PROXMOX_TOKEN_SECRET
-# In Semaphore, set ProxmoxIP and it will be mapped to PROXMOX_URL
+# Required: PROXMOX_URL, PROXMOX_USER, PROXMOX_TOKEN_ID, PROXMOX_TOKEN_SECRET
+# The user should be the username part of the token (e.g., ansible@pam)
+# The token_id is the full token identifier (e.g., ansible@pam!semaphore)
 validate_certs: false
 
 # Gather VM facts
