@@ -8,25 +8,28 @@
         timeout: 10
         force: true
 
+- name: Update Ubuntu hosts and bring to baseline
+  hosts: os_ubuntu
+  become: true
+  roles:
+    - ubuntu
+
 - name: Configure and deploy the Database
   hosts: wc_db
   become: true
   roles:
-    - ubuntu
     - mariadb
 
 - name: Configure and deploy the NFS Server
   hosts: wc_nfs
   become: true
   roles:
-    - ubuntu  
     - nfs-server
 
 - name: Configure and deploy the Web Servers
   hosts: wc_web
   become: true
   roles:
-    - ubuntu
     - nfs-client
     - nginx
 
@@ -34,7 +37,6 @@
   hosts: wc_wpa
   become: true
   roles:
-    - ubuntu
     - nfs-client
     - wp-admin
     - wp-cron
@@ -46,32 +48,7 @@
     webnodes: "{{ groups['wc_web'] }}"
     wpanodes: "{{ groups['wc_wpa'] }}"
   roles:
-    - ubuntu  
     - haproxy
-
-- name: Configure and deploy Tunnel
-  hosts: wc_tun
-  become: true
-  roles:
-    - ubuntu
-
-- name: Configure and deploy Bluesky PDS
-  hosts: bluesky
-  become: true
-  roles:
-    - ubuntu
-
-- name: Configure and deploy Health Server
-  hosts: wc_zabbix
-  become: true
-  roles:
-    - ubuntu
-
-- name: Configure and deploy AzuraCast Radio Server
-  hosts: radio
-  become: true
-  roles:
-    - ubuntu
 
 - name: End of Job Monitoring
   hosts: localhost
