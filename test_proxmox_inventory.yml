@@ -10,3 +10,17 @@
           Hosts: {% for host in groups[item] %}{{ host }} ({{ hostvars[host].ansible_host | default('NO IP') }}){% if not loop.last %}, {% endif %}{% endfor %}
       loop: "{{ groups.keys() | list | sort }}"
       when: item != 'all' and item != 'ungrouped'
+
+- name: Debug IP variables for VMs without IPs
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Show IP variables
+      debug:
+        msg:
+          - "Host: {{ inventory_hostname }}"
+          - "ansible_host: {{ ansible_host | default('NOT SET') }}"
+          - "proxmox_ipconfig0: {{ proxmox_ipconfig0 | default('NOT SET') }}"
+          - "proxmox_net0: {{ proxmox_net0 | default('NOT SET') }}"
+      when: ansible_host is not defined or ansible_host == inventory_hostname
+      run_once: true
