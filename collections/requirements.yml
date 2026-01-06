@@ -2,5 +2,5 @@
 collections:
 - name: community.mysql
 - name: community.proxmox
-  version: ">=1.0.0"
-# Force reinstall for Proxmox inventory plugin support
+  version: "1.5.0"
+# Pinned to latest version for guest agent interface support
