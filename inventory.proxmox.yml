@@ -3,7 +3,7 @@ plugin: community.proxmox.proxmox
 
 # Explicitly set parameters from environment variables
 url: "{{ lookup('env', 'PROXMOX_URL') }}"
-# NOTE: Do NOT set 'user' when using token auth - token_id already contains the username
+user: "{{ lookup('env', 'PROXMOX_USER') }}"
 token_id: "{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
 token_secret: "{{ lookup('env', 'PROXMOX_TOKEN_SECRET') }}"
 

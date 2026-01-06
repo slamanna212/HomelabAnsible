@@ -9,8 +9,10 @@
         msg:
           - "PROXMOX_URL: {{ lookup('env', 'PROXMOX_URL') | default('NOT SET') }}"
           - "PROXMOX_USER: {{ lookup('env', 'PROXMOX_USER') | default('NOT SET') }}"
-          - "PROXMOX_TOKEN_ID: {{ lookup('env', 'PROXMOX_TOKEN_ID') | default('NOT SET (check if set as secret)') }}"
+          - "PROXMOX_TOKEN_ID: {{ lookup('env', 'PROXMOX_TOKEN_ID') | default('NOT SET') }} (should be token name only, e.g. 'semaphore')"
           - "PROXMOX_TOKEN_SECRET: {{ '***SET***' if lookup('env', 'PROXMOX_TOKEN_SECRET') else 'NOT SET' }}"
+          - ""
+          - "Full token identifier will be: {{ lookup('env', 'PROXMOX_USER') }}!{{ lookup('env', 'PROXMOX_TOKEN_ID') }}"
 
     - name: List all environment variables (for debugging)
       shell: env | grep -i proxmox || echo "No PROXMOX variables found"
