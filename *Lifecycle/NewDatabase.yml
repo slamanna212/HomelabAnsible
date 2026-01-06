@@ -2,11 +2,11 @@
 # Create New Database
 #########################################################
 ---
-- hosts: database[0]
+- hosts: wc_db[0]
   become: true
 
     # DB Config
-- hosts: database[0]
+- hosts: wc_db[0]
   vars_prompt:
     - name: sqluser
       prompt: Please provide an SQL username

@@ -2,12 +2,12 @@
 # Create New Wordpress Site
 #########################################################
 ---
-- hosts: database[0]:wp-admin[0]
+- hosts: wc_db[0]:wc_wpa[0]
   become: true
 
 
     # DB Config
-- hosts: database[0]
+- hosts: wc_db[0]
   vars_prompt:
     - name: sqluser
       prompt: Please provide an SQL username
@@ -42,7 +42,7 @@
 
 
     # Nginx Config
-- hosts: wp-admin[0]  
+- hosts: wc_wpa[0]  
   vars_prompt:
     - name: domain
       prompt: What is the domain of the website
@@ -131,7 +131,7 @@
               insertafter="\# * \#"
               line="{{num1}},{{num2}} * * * * www-data wget https://{{ domain }}/wp-cron.php?doing_cron &> /dev/null"
 
-- hosts: web
+- hosts: wc_web
   become: true
   tasks: 
           - name: Create cache directory for new site
@@ -156,7 +156,7 @@
               name: nginx
               state: reloaded
 
-- hosts: wp-admin[0]
+- hosts: wp-wpa[0]
   become: true
   tasks: 
           - name: Update cron file for new website
