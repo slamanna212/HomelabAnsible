@@ -14,6 +14,12 @@
   roles:
     - ubuntu
 
+- name: Update Debian hosts and bring to baseline
+  hosts: os_debian
+  become: true
+  roles:
+    - debian
+
 - name: Configure and deploy the Database
   hosts: wc_db
   become: true
