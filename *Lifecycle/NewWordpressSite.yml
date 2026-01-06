@@ -156,7 +156,7 @@
               name: nginx
               state: reloaded
 
-- hosts: wp_wpa[0]
+- hosts: wc_wpa[0]
   become: true
   tasks: 
           - name: Update cron file for new website
