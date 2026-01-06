@@ -3,3 +3,4 @@ collections:
 - name: community.mysql
 - name: community.proxmox
   version: ">=1.0.0"
+# Force reinstall for Proxmox inventory plugin support
