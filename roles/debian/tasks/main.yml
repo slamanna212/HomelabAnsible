@@ -1,0 +1,13 @@
+---
+- name: Upgrade all packages
+  apt: upgrade=dist force_apt_get=yes
+
+- name: Install QEMU Guest Agent
+  ansible.builtin.apt:
+    name: qemu-guest-agent
+    state: present
+
+- name: Set timezone to Eastern
+  become: true
+  community.general.timezone:
+    name: America/New_York
