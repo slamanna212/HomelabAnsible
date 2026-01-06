@@ -1,0 +1,18 @@
+---
+# Debug playbook to see what variables are available from Proxmox
+- name: Debug Proxmox Host Variables
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Display all hostvars for first host
+      debug:
+        msg: "{{ hostvars[inventory_hostname] }}"
+      run_once: true
+
+    - name: Check for tag-related variables
+      debug:
+        msg:
+          - "proxmox_tags_parsed: {{ proxmox_tags_parsed | default('NOT SET') }}"
+          - "proxmox_tags: {{ proxmox_tags | default('NOT SET') }}"
+          - "tags: {{ tags | default('NOT SET') }}"
+      run_once: true
