@@ -2,6 +2,9 @@
 - name: Upgrade all packages
   apt: upgrade=dist force_apt_get=yes
 
+- name: Install our extra packages
+  apt: name={{ add_packages }} state=present
+
 - name: Install QEMU Guest Agent
   ansible.builtin.apt:
     name: qemu-guest-agent
