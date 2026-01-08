@@ -23,7 +23,6 @@
     curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /etc/apt/keyrings/nginx-archive-keyring.gpg
   args:
     creates: /etc/apt/keyrings/nginx-archive-keyring.gpg
-    warn: false
 
 # Add repositories with signed-by
 - name: Add nginx repository
