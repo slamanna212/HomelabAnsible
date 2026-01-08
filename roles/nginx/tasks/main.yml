@@ -18,22 +18,12 @@
     state: directory
     mode: '0755'
 
-- name: Download nginx GPG key
-  get_url:
-    url: https://nginx.org/keys/nginx_signing.key
-    dest: /tmp/nginx_signing.key
-    mode: '0644'
-
-- name: Add nginx GPG key to keyring
+- name: Download and add nginx GPG key
   shell: |
-    gpg --dearmor < /tmp/nginx_signing.key > /etc/apt/keyrings/nginx-archive-keyring.gpg
+    curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /etc/apt/keyrings/nginx-archive-keyring.gpg
   args:
     creates: /etc/apt/keyrings/nginx-archive-keyring.gpg
-
-- name: Remove temporary key file
-  file:
-    path: /tmp/nginx_signing.key
-    state: absent
+    warn: false
 
 # Add repositories with signed-by
 - name: Add nginx repository
@@ -101,13 +91,22 @@
     backup: no
   notify: restart php-fpm
 
-- name: Update php-fpm pool config
+- name: Copy php-fpm pool config
   become: yes
   become_user: root
-  template:
-    src: www.conf.j2
+  copy:
+    src: www.conf
     dest: "/etc/php/{{ php_version }}/fpm/pool.d/www.conf"
     backup: no
+  notify: restart php-fpm
+
+- name: Update PHP version in pool config
+  become: yes
+  become_user: root
+  replace:
+    path: "/etc/php/{{ php_version }}/fpm/pool.d/www.conf"
+    regexp: 'php\{\{ php_version \}\}'
+    replace: "php{{ php_version }}"
   notify: restart php-fpm        
 
 # Configure FastCGI Cache
