@@ -133,6 +133,16 @@
     group: www-data
     recurse: yes
 
+- name: Create nginx snippets directory
+  become: yes
+  become_user: root
+  ansible.builtin.file:
+    path: /etc/nginx/snippets
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
 - name: Place PHP snippet
   become: yes
   become_user: root
