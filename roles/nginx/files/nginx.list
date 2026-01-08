@@ -1,2 +1,0 @@
-deb https://nginx.org/packages/ubuntu/ noble nginx
-deb-src https://nginx.org/packages/ubuntu/ noble nginx

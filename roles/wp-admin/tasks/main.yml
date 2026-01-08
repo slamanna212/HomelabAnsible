@@ -1,23 +1,68 @@
 ---
-# Add Nginx Repo
-- name: Add Nginx APT Key
-  ansible.builtin.apt_key:
-    keyserver: keyserver.ubuntu.com
-    id: 2FD21310B49F6B46
+# Set OS-specific variables for repository configuration
+- name: Set OS distribution for nginx repository
+  set_fact:
+    nginx_os_distribution: "{{ 'ubuntu' if ansible_facts['distribution'] == 'Ubuntu' else 'debian' }}"
+    nginx_os_codename: "{{ ansible_facts['distribution_release'] }}"
 
-- name: Add Nginx APT Repo
-  become: yes
-  become_user: root            
-  copy: 
-    src: nginx.list
-    dest:  /etc/apt/sources.list.d/nginx.list
-    backup: no                      
+# Modern GPG key management
+- name: Create keyring directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download nginx GPG key
+  get_url:
+    url: https://nginx.org/keys/nginx_signing.key
+    dest: /tmp/nginx_signing.key
+    mode: '0644'
+
+- name: Add nginx GPG key to keyring
+  shell: |
+    gpg --dearmor < /tmp/nginx_signing.key > /etc/apt/keyrings/nginx-archive-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/nginx-archive-keyring.gpg
+
+- name: Remove temporary key file
+  file:
+    path: /tmp/nginx_signing.key
+    state: absent
+
+# Add repositories with signed-by
+- name: Add nginx repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/{{ nginx_os_distribution }}/ {{ nginx_os_codename }} nginx"
+    filename: nginx
+    state: present
+
+- name: Add nginx source repository
+  apt_repository:
+    repo: "deb-src [signed-by=/etc/apt/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/{{ nginx_os_distribution }}/ {{ nginx_os_codename }} nginx"
+    filename: nginx
+    state: present
+
+# Set default PHP version before package install
+- name: Set default PHP version
+  set_fact:
+    php_version: "8.3"
+  when: php_version is not defined
 
 - name: Install required system packages
-  apt: 
-    name={{ sys_packages }} 
+  apt:
+    name={{ sys_packages }}
     state=present
     update_cache=yes
+
+# Detect actual installed PHP version
+- name: Detect installed PHP version
+  shell: "php -r 'echo PHP_MAJOR_VERSION . \".\" . PHP_MINOR_VERSION;'"
+  register: php_version_output
+  changed_when: false
+
+- name: Set PHP version variable from detected installation
+  set_fact:
+    php_version: "{{ php_version_output.stdout }}"
 
 - name: Adds ansible user to www-data group
   user:
@@ -43,19 +88,19 @@
 # Configure PHP
 - name: Copy PHP config
   become: yes
-  become_user: root            
-  copy: 
-    src: php.ini 
-    dest: /etc/php/8.3/fpm/php.ini
-    backup: no                      
-  notify: restart php-fpm    
+  become_user: root
+  copy:
+    src: php.ini
+    dest: "/etc/php/{{ php_version }}/fpm/php.ini"
+    backup: no
+  notify: restart php-fpm
 
 - name: Update php-fpm pool config
   become: yes
-  become_user: root            
-  copy: 
-    src: www.conf 
-    dest: /etc/php/8.3/fpm/pool.d/www.conf 
+  become_user: root
+  template:
+    src: www.conf.j2
+    dest: "/etc/php/{{ php_version }}/fpm/pool.d/www.conf"
     backup: no
   notify: restart php-fpm        
 
