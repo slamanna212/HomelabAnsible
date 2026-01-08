@@ -125,10 +125,22 @@
 
 - name: Set permissions on cache directorys
   become: yes
-  become_user: root            
+  become_user: root
   ansible.builtin.file:
     path: /opt/Cache/
     state: directory
     owner: www-data
     group: www-data
     recurse: yes
+
+- name: Place PHP snippet
+  become: yes
+  become_user: root
+  template:
+    src: php.conf.j2
+    dest: /mnt/Web/Snippets/php.conf
+    backup: no
+    owner: www-data
+    group: www-data
+    mode: 0644
+  notify: restart php-fpm
