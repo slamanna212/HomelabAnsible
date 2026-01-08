@@ -12,6 +12,11 @@
     state: present
     update_cache: no
 
+- name: Remove old nginx repository file if exists
+  file:
+    path: /etc/apt/sources.list.d/nginx.list
+    state: absent
+
 - name: Download and add nginx GPG key
   shell: |
     curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg
