@@ -14,7 +14,7 @@ server {
         location = /favicon.ico { log_not_found off; access_log off; }
         location = /robots.txt { log_not_found off; access_log off; allow all; }
 
-        include /mnt/Web/Snippets/php.conf;
+        include /etc/nginx/snippets/php.conf;
         include /mnt/Web/Snippets/fastcgicache.conf;
         include /mnt/Web/Snippets/cache-control.conf;
         include /mnt/Web/Snippets/wp-block.conf;

@@ -138,7 +138,7 @@
   become_user: root
   template:
     src: php.conf.j2
-    dest: /mnt/Web/Snippets/php.conf
+    dest: /etc/nginx/snippets/php.conf
     backup: no
     owner: www-data
     group: www-data
