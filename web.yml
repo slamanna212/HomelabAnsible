@@ -1,0 +1,15 @@
+---
+- name: Configure and deploy the Web Servers
+  hosts: wc_web
+  become: true
+  roles:
+    - nfs-client
+    - nginx
+
+- name: Configure and deploy the Wordpress Admin Servers
+  hosts: wc_wpa
+  become: true
+  roles:
+    - nfs-client
+    - wp-admin
+    - wp-cron
