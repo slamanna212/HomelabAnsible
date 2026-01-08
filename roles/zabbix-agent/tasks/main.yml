@@ -1,4 +1,8 @@
 ---
+- name: Skip Zabbix agent configuration on Zabbix server
+  meta: end_host
+  when: inventory_hostname == "Slama-Read-Health01v"
+
 - name: Gather package facts
   package_facts:
     manager: "auto"
