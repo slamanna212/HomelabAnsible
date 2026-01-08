@@ -15,6 +15,6 @@
   ansible.posix.mount:
     src: "{{ hostvars[groups['wc_nfs'][0]].ansible_host }}:/mnt/Web"
     path: /mnt/Web
-    opts: rw,sync,hard,nointr,fsc,actimeo=60
+    opts: rw,sync,hard,actimeo=60
     state: mounted
     fstype: nfs     
