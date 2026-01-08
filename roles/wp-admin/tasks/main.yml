@@ -17,11 +17,6 @@
     path: /etc/apt/sources.list.d/nginx.list
     state: absent
 
-- name: Remove old nginx GPG key from /etc/apt/keyrings if exists
-  file:
-    path: /etc/apt/keyrings/nginx-archive-keyring.gpg
-    state: absent
-
 - name: Download and add nginx GPG key
   shell: |
     curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg
