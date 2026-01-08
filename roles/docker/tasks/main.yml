@@ -1,0 +1,39 @@
+---
+# Install Docker packages
+- name: Install required system packages
+  apt:
+    name: "{{ sys_packages }}"
+    state: present
+    update_cache: yes
+
+# User management for passwordless Docker access
+- name: Add ansible user to docker group
+  user:
+    name: ansible
+    state: present
+    groups: docker
+    append: true
+
+# Deploy Docker daemon configuration
+- name: Deploy Docker daemon configuration
+  template:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+    backup: no
+  notify: restart docker
+
+# Ensure Docker service is running
+- name: Ensure Docker service is enabled and started
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+# Deploy automated cleanup cron job
+- name: Deploy Docker image cleanup cron job
+  copy:
+    src: docker-cleanup
+    dest: /etc/cron.d/docker-cleanup
+    mode: '0644'
+    backup: no
