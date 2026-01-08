@@ -18,21 +18,8 @@ want_facts: true
 # For LXC containers: extract from proxmox_net0.ip
 compose:
   # Extract IPv4 address from guest agent (QEMU) or net0 (LXC)
-  # Filter to IPv4 only by excluding addresses containing ':'
-  # Strip CIDR notation (/24, /16, etc.) from all IPs
-  ansible_host: >-
-    {%- if proxmox_agent_interfaces is defined and proxmox_agent_interfaces | length > 1 -%}
-      {%- set ipv4_addrs = proxmox_agent_interfaces[1]['ip-addresses'] | selectattr('ip-address', 'search', '^[0-9]') | map(attribute='ip-address') | list -%}
-      {%- if ipv4_addrs | length > 0 -%}
-        {{ ipv4_addrs[0] | regex_replace('/.*', '') }}
-      {%- else -%}
-        {{ inventory_hostname }}
-      {%- endif -%}
-    {%- elif proxmox_net0.ip is defined -%}
-      {{ proxmox_net0.ip | regex_replace('/.*', '') }}
-    {%- else -%}
-      {{ inventory_hostname }}
-    {%- endif -%}
+  # Filter for IPv4 by selecting IPs starting with digits, strip CIDR notation
+  ansible_host: ((proxmox_agent_interfaces[1]['ip-addresses'] | selectattr('ip-address', 'search', '^[0-9]') | map(attribute='ip-address') | list | first | default(inventory_hostname)) if (proxmox_agent_interfaces is defined and proxmox_agent_interfaces | length > 1) else (proxmox_net0.ip if proxmox_net0.ip is defined else inventory_hostname)) | regex_replace('/.*', '')
 
 # Create groups based on VM tags
 keyed_groups:
