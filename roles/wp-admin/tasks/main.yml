@@ -12,28 +12,23 @@
     state: present
     update_cache: no
 
-- name: Create keyring directory
-  file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: '0755'
-
 - name: Download and add nginx GPG key
   shell: |
-    curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /etc/apt/keyrings/nginx-archive-keyring.gpg
+    curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg
+    chmod 644 /usr/share/keyrings/nginx-archive-keyring.gpg
   args:
-    creates: /etc/apt/keyrings/nginx-archive-keyring.gpg
+    creates: /usr/share/keyrings/nginx-archive-keyring.gpg
 
 # Add repositories with signed-by
 - name: Add nginx repository
   apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/{{ nginx_os_distribution }}/ {{ nginx_os_codename }} nginx"
+    repo: "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/{{ nginx_os_distribution }}/ {{ nginx_os_codename }} nginx"
     filename: nginx
     state: present
 
 - name: Add nginx source repository
   apt_repository:
-    repo: "deb-src [signed-by=/etc/apt/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/{{ nginx_os_distribution }}/ {{ nginx_os_codename }} nginx"
+    repo: "deb-src [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/{{ nginx_os_distribution }}/ {{ nginx_os_codename }} nginx"
     filename: nginx
     state: present
 
