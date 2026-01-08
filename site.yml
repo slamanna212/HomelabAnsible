@@ -13,12 +13,14 @@
   become: true
   roles:
     - ubuntu
+    - zabbix-agent
 
 - name: Update Debian hosts and bring to baseline
   hosts: os_debian
   become: true
   roles:
     - debian
+    - zabbix-agent
 
 - name: Configure and deploy the Database
   hosts: wc_db
