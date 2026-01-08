@@ -17,3 +17,8 @@
   become: true
   community.general.timezone:
     name: America/New_York
+
+- name: Set system hostname from Proxmox VM name
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+    use: systemd
