@@ -19,14 +19,19 @@ want_facts: true
 compose:
   # Extract IPv4 address from guest agent (QEMU) or net0 (LXC)
   # Filter to IPv4 only by excluding addresses containing ':'
+  # Strip CIDR notation (/24, /16, etc.) from all IPs
   ansible_host: >-
     {%- if proxmox_agent_interfaces is defined and proxmox_agent_interfaces | length > 1 -%}
       {%- set ipv4_addrs = proxmox_agent_interfaces[1]['ip-addresses'] | selectattr('ip-address', 'search', '^[0-9]') | map(attribute='ip-address') | list -%}
-      {{ ipv4_addrs[0] if ipv4_addrs | length > 0 else '' }}
+      {%- if ipv4_addrs | length > 0 -%}
+        {{ ipv4_addrs[0] | regex_replace('/.*', '') }}
+      {%- else -%}
+        {{ inventory_hostname }}
+      {%- endif -%}
     {%- elif proxmox_net0.ip is defined -%}
       {{ proxmox_net0.ip | regex_replace('/.*', '') }}
     {%- else -%}
-      {{ '' }}
+      {{ inventory_hostname }}
     {%- endif -%}
 
 # Create groups based on VM tags
