@@ -22,6 +22,12 @@
     dest: "/tmp/zabbix.deb"
   when: (ansible_facts['distribution'] == "Ubuntu" and ansible_facts['distribution_major_version'] == "24")
 
+- name: Download Ubuntu 24 Zabbix deb file
+  get_url:
+    url: "https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zabbix-release_latest_7.0%2Bdebian13_all.deb"
+    dest: "/tmp/zabbix.deb"
+  when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "13")
+
 # Install Deb File
 - name: Install Zabbix deb file
   become: true
