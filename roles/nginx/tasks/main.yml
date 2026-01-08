@@ -17,6 +17,11 @@
     path: /etc/apt/sources.list.d/nginx.list
     state: absent
 
+- name: Remove old nginx GPG key from /etc/apt/keyrings if exists
+  file:
+    path: /etc/apt/keyrings/nginx-archive-keyring.gpg
+    state: absent
+
 - name: Download and add nginx GPG key
   shell: |
     curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg
@@ -37,10 +42,10 @@
     filename: nginx
     state: present
 
-# Set default PHP version before package install
-- name: Set default PHP version
+# Set OS-appropriate default PHP version
+- name: Set default PHP version based on OS
   set_fact:
-    php_version: "8.3"
+    php_version: "{{ '8.3' if ansible_facts['distribution'] == 'Ubuntu' else '8.4' }}"
   when: php_version is not defined
 
 - name: Install required system packages
