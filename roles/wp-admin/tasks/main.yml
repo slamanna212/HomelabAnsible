@@ -6,6 +6,12 @@
     nginx_os_codename: "{{ ansible_facts['distribution_release'] }}"
 
 # Modern GPG key management
+- name: Ensure gpg is installed
+  apt:
+    name: gpg
+    state: present
+    update_cache: no
+
 - name: Create keyring directory
   file:
     path: /etc/apt/keyrings
