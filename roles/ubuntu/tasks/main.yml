@@ -1,9 +1,14 @@
 ---
 - name: Force APT to use IPv4
-  copy: 
+  copy:
     src=1000-force-ipv4-transport
     dest=/etc/apt/apt.conf.d/1000-force-ipv4-transport
     backup=no
+
+- name: Remove old nginx GPG key from /etc/apt/keyrings if exists
+  file:
+    path: /etc/apt/keyrings/nginx-archive-keyring.gpg
+    state: absent
 
 - name: Upgrade all packages
   apt: upgrade=dist force_apt_get=yes
