@@ -43,3 +43,5 @@
         name: wazuh-agent
         state: started
         enabled: yes
+
+  when: "'wazuh' not in group_names"
