@@ -1,6 +1,13 @@
 ---
 - name: Configure Wazuh Agent
   block:
+    # Ensure gnupg is installed (required for GPG key import)
+    - name: Install gnupg package
+      apt:
+        name: gnupg
+        state: present
+        update_cache: yes
+
     # Download and install GPG key
     - name: Download Wazuh GPG key
       get_url:
