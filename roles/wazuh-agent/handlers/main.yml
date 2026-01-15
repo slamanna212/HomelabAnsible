@@ -1,0 +1,7 @@
+---
+- name: restart wazuh-agent
+  become: yes
+  service:
+    name: wazuh-agent
+    state: restarted
+    enabled: yes

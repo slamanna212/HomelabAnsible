@@ -1,0 +1,45 @@
+---
+- name: Configure Wazuh Agent
+  block:
+    # Download and install GPG key
+    - name: Download Wazuh GPG key
+      get_url:
+        url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+        dest: /tmp/GPG-KEY-WAZUH
+        mode: '0644'
+
+    - name: Import Wazuh GPG key to keyring
+      shell: gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import /tmp/GPG-KEY-WAZUH && chmod 644 /usr/share/keyrings/wazuh.gpg
+      args:
+        creates: /usr/share/keyrings/wazuh.gpg
+
+    # Add Wazuh repository
+    - name: Add Wazuh APT repository
+      copy:
+        content: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main\n"
+        dest: /etc/apt/sources.list.d/wazuh.list
+        mode: '0644'
+
+    # Install Wazuh agent
+    - name: Install Wazuh agent
+      apt:
+        name: wazuh-agent
+        state: present
+        update_cache: yes
+      environment:
+        WAZUH_MANAGER: "{{ wazuh_manager_ip }}"
+      notify: restart wazuh-agent
+
+    # Disable Wazuh repository to prevent unintended upgrades
+    - name: Disable Wazuh repository
+      replace:
+        path: /etc/apt/sources.list.d/wazuh.list
+        regexp: '^deb'
+        replace: '#deb'
+
+    # Ensure service is started and enabled
+    - name: Ensure Wazuh agent service is started and enabled
+      service:
+        name: wazuh-agent
+        state: started
+        enabled: yes

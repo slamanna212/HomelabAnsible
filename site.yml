@@ -14,6 +14,7 @@
   roles:
     - ubuntu
     - zabbix-agent
+    - wazuh-agent
 
 - name: Update Debian hosts and bring to baseline
   hosts: os_debian
@@ -21,6 +22,7 @@
   roles:
     - debian
     - zabbix-agent
+    - wazuh-agent
 
 - name: Configure and deploy the Database
   hosts: wc_db
