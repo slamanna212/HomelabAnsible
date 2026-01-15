@@ -1,0 +1,6 @@
+---
+- name: Deploy Wazuh Agent
+  hosts: Slama-Read-Dev02v
+  become: true
+  roles:
+    - wazuh-agent
