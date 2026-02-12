@@ -108,6 +108,22 @@
     replace: "php{{ php_version }}"
   notify: restart php-fpm        
 
+# Fix nginx logrotate ownership (nginx package defaults to 'nginx' user but we run as www-data)
+- name: Fix nginx logrotate config to use www-data
+  become: yes
+  become_user: root
+  replace:
+    path: /etc/logrotate.d/nginx
+    regexp: 'create 640 nginx adm'
+    replace: 'create 640 www-data adm'
+
+- name: Fix ownership on existing nginx log files
+  become: yes
+  become_user: root
+  ansible.builtin.shell: chown www-data:adm /var/log/nginx/*.log
+  changed_when: false
+  notify: reload nginx
+
 # Configure FastCGI Cache
 - name: Find all current live websites
   find:
