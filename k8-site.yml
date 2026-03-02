@@ -1,0 +1,13 @@
+---
+- name: Update K8 Control hosts and bring to baseline
+  hosts: k8control
+  become: true
+  roles:
+    - debian
+
+- name: Update K8 Work hosts and bring to baseline
+  hosts: k8work
+  become: true
+  roles:
+    - debian
+  
