@@ -1,4 +1,14 @@
 ---
+sys_packages:
+  - curl
+  - wget
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - net-tools
+  - htop
+
 k8s_packages:
   - "kubelet"
   - "kubeadm"

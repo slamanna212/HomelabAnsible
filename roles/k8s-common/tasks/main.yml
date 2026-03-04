@@ -1,9 +1,8 @@
 ---
-# ===== Hostname (Kubernetes requires lowercase RFC-1123) =====
-- name: Set hostname to lowercase
-  ansible.builtin.hostname:
-    name: "{{ inventory_hostname | lower }}"
-    use: systemd
+- name: Install required system packages
+  apt:
+    name: "{{ sys_packages }}"
+    state: present
 
 # ===== Swap =====
 - name: Disable swap immediately
