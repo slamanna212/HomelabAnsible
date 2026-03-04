@@ -1,0 +1,2 @@
+skip_list:
+  - role-name  # Project uses hyphenated role names consistently (zabbix-agent, wp-admin, etc.)

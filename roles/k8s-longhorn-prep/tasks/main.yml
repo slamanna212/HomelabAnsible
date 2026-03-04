@@ -1,0 +1,59 @@
+---
+# ===== Longhorn prerequisites =====
+- name: Install Longhorn prerequisites
+  ansible.builtin.apt:
+    name:
+      - open-iscsi
+      - nfs-common
+      - jq
+      - cryptsetup
+      - dmsetup
+    state: present
+    update_cache: true
+
+- name: Enable and start iscsid
+  ansible.builtin.service:
+    name: iscsid
+    state: started
+    enabled: true
+
+# ===== NVMe tier (uses existing OS disk free space) =====
+- name: Create Longhorn NVMe data directory
+  ansible.builtin.file:
+    path: /var/lib/longhorn
+    state: directory
+    mode: '0750'
+
+# ===== SATA tier (separate 150GB SATA SSD) =====
+# longhorn_sata_disk defaults to 'sdb' — override per-host in host_vars/ if needed
+- name: Check if SATA disk is already formatted
+  ansible.builtin.command: blkid /dev/{{ longhorn_sata_disk }}
+  register: sata_blkid
+  changed_when: false
+  failed_when: false
+
+- name: Format SATA disk as XFS
+  ansible.builtin.command: mkfs.xfs /dev/{{ longhorn_sata_disk }}
+  when: sata_blkid.rc != 0
+  changed_when: sata_blkid.rc != 0
+
+- name: Create Longhorn SATA mount point
+  ansible.builtin.file:
+    path: /var/lib/longhorn-sata
+    state: directory
+    mode: '0750'
+
+- name: Get SATA disk UUID
+  ansible.builtin.command: blkid -s UUID -o value /dev/{{ longhorn_sata_disk }}
+  register: sata_uuid
+  changed_when: false
+
+- name: Mount SATA disk and persist in fstab
+  ansible.posix.mount:
+    path: /var/lib/longhorn-sata
+    src: "UUID={{ sata_uuid.stdout | trim }}"
+    fstype: xfs
+    opts: defaults
+    dump: '0'
+    passno: '2'
+    state: mounted
