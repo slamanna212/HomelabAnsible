@@ -318,6 +318,18 @@
         helm upgrade --install traefik traefik/traefik
         --namespace traefik
         --create-namespace
+        --set api.dashboard=true
+        --set api.insecure=true
+        --set ports.traefik.expose.default=true
+        --set ports.argocd.port=8443
+        --set ports.argocd.exposedPort=8443
+        --set ports.argocd.expose.default=true
+        --set ports.argocd.protocol=TCP
+        --set ports.longhorn.port=8080
+        --set ports.longhorn.exposedPort=8080
+        --set ports.longhorn.expose.default=true
+        --set ports.longhorn.protocol=TCP
+        --set providers.kubernetesCRD.allowCrossNamespace=true
         --wait --timeout 5m
       register: traefik_deploy
       changed_when: "'already up-to-date' not in traefik_deploy.stdout"
@@ -405,6 +417,27 @@
         EOF
       changed_when: true
 
+    - name: Create Longhorn IngressRoute via Traefik
+      ansible.builtin.shell: |
+        kubectl apply -f - <<EOF
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRoute
+        metadata:
+          name: longhorn-ui
+          namespace: traefik
+        spec:
+          entryPoints:
+            - longhorn
+          routes:
+            - match: PathPrefix(`/`)
+              kind: Rule
+              services:
+                - name: longhorn-frontend
+                  namespace: longhorn-system
+                  port: 80
+        EOF
+      changed_when: true
+
     # --- ArgoCD ---
     - name: Add ArgoCD Helm repo
       ansible.builtin.shell: helm repo add argo https://argoproj.github.io/argo-helm
@@ -417,6 +450,7 @@
         --create-namespace
         --set redis.image.repository=redis
         --set redis.image.tag=7.4-alpine
+        --set server.insecure=true
         --wait --timeout 10m
       register: argocd_deploy
       changed_when: "'already up-to-date' not in argocd_deploy.stdout"
@@ -431,3 +465,38 @@
     - name: Display ArgoCD admin password
       ansible.builtin.debug:
         msg: "ArgoCD admin password: {{ argocd_password.stdout }}"
+
+    - name: Create ArgoCD IngressRoute via Traefik
+      ansible.builtin.shell: |
+        kubectl apply -f - <<EOF
+        apiVersion: traefik.io/v1alpha1
+        kind: IngressRoute
+        metadata:
+          name: argocd-ui
+          namespace: traefik
+        spec:
+          entryPoints:
+            - argocd
+          routes:
+            - match: PathPrefix(`/`)
+              kind: Rule
+              services:
+                - name: argocd-server
+                  namespace: argocd
+                  port: 80
+        EOF
+      changed_when: true
+
+    - name: Get Traefik LoadBalancer IP
+      ansible.builtin.shell: >
+        kubectl -n traefik get svc traefik
+        -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+      register: traefik_ip
+      changed_when: false
+
+    - name: Display UI access URLs
+      ansible.builtin.debug:
+        msg:
+          - "Traefik Dashboard: http://{{ traefik_ip.stdout }}:9000/dashboard/"
+          - "Longhorn UI:       http://{{ traefik_ip.stdout }}:8080"
+          - "ArgoCD UI:         http://{{ traefik_ip.stdout }}:8443"
