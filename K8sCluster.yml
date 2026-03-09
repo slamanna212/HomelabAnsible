@@ -243,10 +243,6 @@
     KUBECONFIG: /etc/kubernetes/admin.conf
   tasks:
 
-    - name: Wait for all nodes to be Ready
-      ansible.builtin.shell: kubectl wait --for=condition=Ready nodes --all --timeout=300s
-      changed_when: false
-
     # --- Cilium CNI ---
     - name: Add Cilium Helm repo
       ansible.builtin.shell: helm repo add cilium https://helm.cilium.io/
@@ -262,6 +258,10 @@
         --wait --timeout 5m
       register: cilium_deploy
       changed_when: "'already up-to-date' not in cilium_deploy.stdout"
+
+    - name: Wait for all nodes to be Ready
+      ansible.builtin.shell: kubectl wait --for=condition=Ready nodes --all --timeout=300s
+      changed_when: false
 
     # --- MetalLB ---
     - name: Add MetalLB Helm repo
