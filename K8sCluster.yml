@@ -1,10 +1,10 @@
 ---
-- name: Prepare all Kubernetes nodes
-  hosts: k8s
-  become: true
-  roles:
-    - debian
-    - k8s-common
+# name: Prepare all Kubernetes nodes
+#  hosts: k8s
+#  become: true
+#  roles:
+#    - debian
+#    - k8s-common
 
 - name: Prepare worker nodes for Longhorn storage
   hosts: k8work
