@@ -318,11 +318,12 @@
         helm upgrade --install traefik traefik/traefik
         --namespace traefik
         --create-namespace
+        --force
         --set api.dashboard=true
         --set api.insecure=true
         --set ports.traefik.expose.default=true
-        --set ports.argocd.port=8443
-        --set ports.argocd.exposedPort=8443
+        --set ports.argocd.port=9443
+        --set ports.argocd.exposedPort=9443
         --set ports.argocd.expose.default=true
         --set ports.argocd.protocol=TCP
         --set ports.longhorn.port=8088
@@ -499,4 +500,4 @@
         msg:
           - "Traefik Dashboard: http://{{ traefik_ip.stdout }}:9000/dashboard/"
           - "Longhorn UI:       http://{{ traefik_ip.stdout }}:8088"
-          - "ArgoCD UI:         http://{{ traefik_ip.stdout }}:8443"
+          - "ArgoCD UI:         http://{{ traefik_ip.stdout }}:9443"
