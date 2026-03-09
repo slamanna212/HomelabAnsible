@@ -30,11 +30,37 @@
         state: directory
         mode: '0755'
 
+    - name: Create placeholder admin.conf for kube-vip bootstrap
+      ansible.builtin.file:
+        path: /etc/kubernetes/admin.conf
+        state: touch
+        mode: '0600'
+      when: not admin_conf.stat.exists
+
     - name: Template kube-vip static pod manifest
       ansible.builtin.template:
         src: roles/k8s-common/templates/kube-vip.yaml.j2
         dest: /etc/kubernetes/manifests/kube-vip.yaml
         mode: '0644'
+      vars:
+        kube_vip_leaderelection: "false"
+      when: not admin_conf.stat.exists
+
+    - name: Template kube-vip static pod manifest (already initialized)
+      ansible.builtin.template:
+        src: roles/k8s-common/templates/kube-vip.yaml.j2
+        dest: /etc/kubernetes/manifests/kube-vip.yaml
+        mode: '0644'
+      when: admin_conf.stat.exists
+
+    - name: Wait for kube-vip to claim VIP via ARP
+      ansible.builtin.command: ping -c 1 -W 1 {{ k8s_vip }}
+      register: ping_result
+      until: ping_result.rc == 0
+      retries: 30
+      delay: 2
+      changed_when: false
+      when: not admin_conf.stat.exists
 
     - name: Initialize Kubernetes cluster
       ansible.builtin.shell: >
@@ -45,6 +71,13 @@
         --service-cidr {{ k8s_service_cidr }}
       when: not admin_conf.stat.exists
       register: kubeadm_init
+
+    - name: Re-template kube-vip manifest with leader election enabled
+      ansible.builtin.template:
+        src: roles/k8s-common/templates/kube-vip.yaml.j2
+        dest: /etc/kubernetes/manifests/kube-vip.yaml
+        mode: '0644'
+      when: kubeadm_init.changed
 
     - name: Apply kube-vip RBAC
       ansible.builtin.shell: kubectl apply -f https://kube-vip.io/manifests/rbac.yaml
