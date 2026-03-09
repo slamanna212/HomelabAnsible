@@ -45,6 +45,15 @@
         state: absent
       when: admin_conf.stat.exists and not cluster_initialized
 
+    - name: Create minimal kubelet config so kubelet can start for static pod bootstrap
+      ansible.builtin.copy:
+        content: |
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          kind: KubeletConfiguration
+        dest: /var/lib/kubelet/config.yaml
+        mode: '0644'
+      when: admin_conf.stat.exists and not cluster_initialized
+
     - name: Restart kubelet after reset to pick up clean manifests directory
       ansible.builtin.systemd:
         name: kubelet
