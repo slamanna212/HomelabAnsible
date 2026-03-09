@@ -263,6 +263,18 @@
       ansible.builtin.shell: kubectl wait --for=condition=Ready nodes --all --timeout=300s
       changed_when: false
 
+    - name: Label worker nodes with physical host zone
+      ansible.builtin.shell: >
+        kubectl label node {{ item.node | lower }}
+        topology.kubernetes.io/zone={{ item.zone }}
+        --overwrite
+      loop:
+        - { node: "slama-read-k8work01v", zone: "rapture" }
+        - { node: "slama-read-k8work02v", zone: "rapture" }
+        - { node: "slama-read-k8work03v", zone: "wave1" }
+        - { node: "slama-read-k8work04v", zone: "minerva" }
+      changed_when: true
+
     # --- MetalLB ---
     - name: Add MetalLB Helm repo
       ansible.builtin.shell: helm repo add metallb https://metallb.github.io/metallb
@@ -345,6 +357,7 @@
         --namespace longhorn-system
         --create-namespace
         --set defaultSettings.defaultDataPath=/var/lib/longhorn
+        --set defaultSettings.replicaZoneSoftAntiAffinity=false
         --wait --timeout 10m
       register: longhorn_deploy
       changed_when: "'already up-to-date' not in longhorn_deploy.stdout"
