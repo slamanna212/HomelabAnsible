@@ -97,7 +97,7 @@
       ansible.builtin.shell: >
         kubeadm init
         --config /etc/kubernetes/kubeadm-config.yaml
-        --skip-phases=upload-config,mark-control-plane,bootstrap-token,kubelet-finalize,addon
+        --skip-phases=upload-config,mark-control-plane,bootstrap-token,kubelet-finalize,addon,show-join-command
       when: not cluster_initialized
       register: kubeadm_init
 
