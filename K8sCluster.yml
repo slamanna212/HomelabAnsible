@@ -45,21 +45,6 @@
         state: absent
       when: admin_conf.stat.exists and not cluster_initialized
 
-    - name: Create minimal kubelet config so kubelet can start for static pod bootstrap
-      ansible.builtin.copy:
-        content: |
-          apiVersion: kubelet.config.k8s.io/v1beta1
-          kind: KubeletConfiguration
-        dest: /var/lib/kubelet/config.yaml
-        mode: '0644'
-      when: admin_conf.stat.exists and not cluster_initialized
-
-    - name: Restart kubelet after reset to pick up clean manifests directory
-      ansible.builtin.systemd:
-        name: kubelet
-        state: restarted
-      when: admin_conf.stat.exists and not cluster_initialized
-
     - name: Create manifests directory
       ansible.builtin.file:
         path: /etc/kubernetes/manifests
@@ -95,15 +80,6 @@
         mode: '0644'
       when: cluster_initialized
 
-    - name: Wait for kube-vip to claim VIP via ARP
-      ansible.builtin.command: ping -c 1 -W 1 {{ k8s_vip }}
-      register: ping_result
-      until: ping_result.rc == 0
-      retries: 60
-      delay: 2
-      changed_when: false
-      when: not cluster_initialized
-
     - name: Initialize Kubernetes cluster
       ansible.builtin.shell: >
         kubeadm init
@@ -113,6 +89,15 @@
         --service-cidr {{ k8s_service_cidr }}
       when: not cluster_initialized
       register: kubeadm_init
+
+    - name: Wait for kube-vip to claim VIP via ARP
+      ansible.builtin.command: ping -c 1 -W 1 {{ k8s_vip }}
+      register: ping_result
+      until: ping_result.rc == 0
+      retries: 30
+      delay: 2
+      changed_when: false
+      when: not cluster_initialized
 
     - name: Re-template kube-vip manifest with leader election enabled
       ansible.builtin.template:
