@@ -325,8 +325,8 @@
         --set ports.argocd.exposedPort=8443
         --set ports.argocd.expose.default=true
         --set ports.argocd.protocol=TCP
-        --set ports.longhorn.port=8080
-        --set ports.longhorn.exposedPort=8080
+        --set ports.longhorn.port=8088
+        --set ports.longhorn.exposedPort=8088
         --set ports.longhorn.expose.default=true
         --set ports.longhorn.protocol=TCP
         --set providers.kubernetesCRD.allowCrossNamespace=true
@@ -498,5 +498,5 @@
       ansible.builtin.debug:
         msg:
           - "Traefik Dashboard: http://{{ traefik_ip.stdout }}:9000/dashboard/"
-          - "Longhorn UI:       http://{{ traefik_ip.stdout }}:8080"
+          - "Longhorn UI:       http://{{ traefik_ip.stdout }}:8088"
           - "ArgoCD UI:         http://{{ traefik_ip.stdout }}:8443"
