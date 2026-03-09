@@ -415,6 +415,8 @@
         helm upgrade --install argocd argo/argo-cd
         --namespace argocd
         --create-namespace
+        --set redis.image.repository=redis
+        --set redis.image.tag=7.4-alpine
         --wait --timeout 10m
       register: argocd_deploy
       changed_when: "'already up-to-date' not in argocd_deploy.stdout"
