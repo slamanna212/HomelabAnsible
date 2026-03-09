@@ -2,12 +2,7 @@
 # ===== Longhorn prerequisites =====
 - name: Install Longhorn prerequisites
   ansible.builtin.apt:
-    name:
-      - open-iscsi
-      - nfs-common
-      - jq
-      - cryptsetup
-      - dmsetup
+    name: "{{ longhorn_packages }}"
     state: present
     update_cache: true
 
