@@ -1,2 +1,2 @@
 ---
-    add_packages: [ 'htop', 'nload']
+    add_packages: [ 'htop', 'nload', 'resolvconf']
