@@ -365,8 +365,11 @@
           }'
       loop: "{{ groups['k8work'] }}"
       register: longhorn_patch
+      until: longhorn_patch.rc == 0
+      retries: 10
+      delay: 15
       changed_when: longhorn_patch.rc == 0
-      failed_when: longhorn_patch.rc != 0
+      failed_when: longhorn_patch.rc != 0 and longhorn_patch.attempts >= 10
 
     - name: Create Longhorn NVMe StorageClass (default)
       ansible.builtin.shell: |
