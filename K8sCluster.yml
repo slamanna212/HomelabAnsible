@@ -1,0 +1,8 @@
+---
+- name: Prepare all Kubernetes nodes
+  hosts: k8s
+  become: true
+  roles:
+    - debian
+    - k8s-common
+    - zabbix-agent
