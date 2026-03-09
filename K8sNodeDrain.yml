@@ -1,0 +1,40 @@
+---
+- name: Drain Kubernetes Node for Maintenance
+  hosts: k8control[0]
+  gather_facts: false
+
+  vars_prompt:
+    - name: node_name
+      prompt: "Enter the node name to drain"
+      private: false
+
+  tasks:
+    - name: Cordon node (mark unschedulable)
+      ansible.builtin.command:
+        cmd: kubectl cordon {{ node_name }}
+      register: cordon_result
+      changed_when: "'cordoned' in cordon_result.stdout"
+
+    - name: Drain node (evict pods)
+      ansible.builtin.command:
+        cmd: >-
+          kubectl drain {{ node_name }}
+          --ignore-daemonsets
+          --delete-emptydir-data
+          --grace-period=60
+      register: drain_result
+      changed_when: "'evicting pod' in drain_result.stderr or 'drained' in drain_result.stdout"
+
+    - name: Show post-drain node status
+      ansible.builtin.command:
+        cmd: kubectl get node {{ node_name }}
+      register: node_status
+      changed_when: false
+
+    - name: Display node status
+      ansible.builtin.debug:
+        msg: "{{ node_status.stdout_lines }}"
+
+    - name: Show uncordon instructions
+      ansible.builtin.debug:
+        msg: "To return the node to service after maintenance, run: kubectl uncordon {{ node_name }}"
