@@ -1,4 +1,6 @@
 ---
+k8s_version: "1.35"
+
 sys_packages:
   - curl
   - wget
