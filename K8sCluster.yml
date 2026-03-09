@@ -45,6 +45,12 @@
         state: absent
       when: admin_conf.stat.exists and not cluster_initialized
 
+    - name: Restart kubelet after reset to pick up clean manifests directory
+      ansible.builtin.systemd:
+        name: kubelet
+        state: restarted
+      when: admin_conf.stat.exists and not cluster_initialized
+
     - name: Create manifests directory
       ansible.builtin.file:
         path: /etc/kubernetes/manifests
@@ -57,6 +63,12 @@
         state: touch
         mode: '0600'
       when: not cluster_initialized
+
+    - name: Pre-pull kube-vip image to avoid pull timeout during VIP wait
+      ansible.builtin.command: >
+        crictl pull ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }}
+      when: not cluster_initialized
+      changed_when: false
 
     - name: Template kube-vip static pod manifest (bootstrap - no leader election)
       ansible.builtin.template:
@@ -78,7 +90,7 @@
       ansible.builtin.command: ping -c 1 -W 1 {{ k8s_vip }}
       register: ping_result
       until: ping_result.rc == 0
-      retries: 30
+      retries: 60
       delay: 2
       changed_when: false
       when: not cluster_initialized
