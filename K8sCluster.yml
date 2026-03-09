@@ -51,13 +51,6 @@
         state: directory
         mode: '0755'
 
-    - name: Create placeholder admin.conf for kube-vip bootstrap
-      ansible.builtin.file:
-        path: /etc/kubernetes/admin.conf
-        state: touch
-        mode: '0600'
-      when: not cluster_initialized
-
     - name: Pre-pull kube-vip image to avoid pull timeout during VIP wait
       ansible.builtin.command: >
         crictl pull ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }}
