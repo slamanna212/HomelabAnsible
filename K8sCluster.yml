@@ -318,7 +318,6 @@
         helm upgrade --install traefik traefik/traefik
         --namespace traefik
         --create-namespace
-        --force
         --set api.dashboard=true
         --set api.insecure=true
         --set ports.traefik.expose.default=true
@@ -420,7 +419,7 @@
 
     - name: Create Longhorn IngressRoute via Traefik
       ansible.builtin.shell: |
-        kubectl apply -f - <<EOF
+        kubectl apply -f - <<'EOF'
         apiVersion: traefik.io/v1alpha1
         kind: IngressRoute
         metadata:
@@ -469,7 +468,7 @@
 
     - name: Create ArgoCD IngressRoute via Traefik
       ansible.builtin.shell: |
-        kubectl apply -f - <<EOF
+        kubectl apply -f - <<'EOF'
         apiVersion: traefik.io/v1alpha1
         kind: IngressRoute
         metadata:
@@ -498,6 +497,6 @@
     - name: Display UI access URLs
       ansible.builtin.debug:
         msg:
-          - "Traefik Dashboard: http://{{ traefik_ip.stdout }}:9000/dashboard/"
+          - "Traefik Dashboard: http://{{ traefik_ip.stdout }}:8080/dashboard/"
           - "Longhorn UI:       http://{{ traefik_ip.stdout }}:8088"
           - "ArgoCD UI:         http://{{ traefik_ip.stdout }}:9443"
