@@ -21,16 +21,16 @@
 
 # ===== SATA tier (separate 150GB SATA SSD) =====
 # longhorn_sata_disk defaults to 'sdb' — override per-host in host_vars/ if needed
-- name: Check if SATA disk is already formatted
-  ansible.builtin.command: blkid /dev/{{ longhorn_sata_disk }}
-  register: sata_blkid
+- name: Check SATA disk filesystem type
+  ansible.builtin.command: blkid -s TYPE -o value /dev/{{ longhorn_sata_disk }}
+  register: sata_fstype
   changed_when: false
   failed_when: false
 
 - name: Format SATA disk as XFS
-  ansible.builtin.command: mkfs.xfs /dev/{{ longhorn_sata_disk }}
-  when: sata_blkid.rc != 0
-  changed_when: sata_blkid.rc != 0
+  ansible.builtin.command: mkfs.xfs -f /dev/{{ longhorn_sata_disk }}
+  when: (sata_fstype.stdout | trim) != 'xfs'
+  changed_when: (sata_fstype.stdout | trim) != 'xfs'
 
 - name: Create Longhorn SATA mount point
   ansible.builtin.file:
