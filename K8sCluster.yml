@@ -57,6 +57,12 @@
       when: not cluster_initialized
       changed_when: false
 
+    - name: Stop kubelet to prevent premature kube-vip start
+      ansible.builtin.service:
+        name: kubelet
+        state: stopped
+      when: not cluster_initialized
+
     - name: Template kube-vip static pod manifest (bootstrap - no leader election)
       ansible.builtin.template:
         src: roles/k8s-common/templates/kube-vip.yaml.j2
@@ -74,13 +80,24 @@
         mode: '0644'
       when: cluster_initialized
 
-    - name: Initialize Kubernetes cluster
+    - name: Generate kubeadm config file
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/kubeadm-config.yaml
+        mode: '0600'
+        content: |
+          apiVersion: kubeadm.k8s.io/v1beta4
+          kind: ClusterConfiguration
+          controlPlaneEndpoint: "{{ k8s_vip }}:6443"
+          networking:
+            podSubnet: "{{ k8s_pod_cidr }}"
+            serviceSubnet: "{{ k8s_service_cidr }}"
+      when: not cluster_initialized
+
+    - name: Initialize Kubernetes cluster (core phases)
       ansible.builtin.shell: >
         kubeadm init
-        --control-plane-endpoint "{{ k8s_vip }}:6443"
-        --upload-certs
-        --pod-network-cidr {{ k8s_pod_cidr }}
-        --service-cidr {{ k8s_service_cidr }}
+        --config /etc/kubernetes/kubeadm-config.yaml
+        --skip-phases=upload-config,mark-control-plane,bootstrap-token,kubelet-finalize,addon
       when: not cluster_initialized
       register: kubeadm_init
 
@@ -92,6 +109,26 @@
       delay: 2
       changed_when: false
       when: not cluster_initialized
+
+    - name: Complete kubeadm init - upload-config
+      ansible.builtin.command: kubeadm init phase upload-config all --config /etc/kubernetes/kubeadm-config.yaml
+      when: kubeadm_init.changed
+
+    - name: Complete kubeadm init - mark-control-plane
+      ansible.builtin.command: kubeadm init phase mark-control-plane --config /etc/kubernetes/kubeadm-config.yaml
+      when: kubeadm_init.changed
+
+    - name: Complete kubeadm init - bootstrap-token
+      ansible.builtin.command: kubeadm init phase bootstrap-token --config /etc/kubernetes/kubeadm-config.yaml
+      when: kubeadm_init.changed
+
+    - name: Complete kubeadm init - kubelet-finalize
+      ansible.builtin.command: kubeadm init phase kubelet-finalize all --config /etc/kubernetes/kubeadm-config.yaml
+      when: kubeadm_init.changed
+
+    - name: Complete kubeadm init - addon
+      ansible.builtin.command: kubeadm init phase addon all --config /etc/kubernetes/kubeadm-config.yaml
+      when: kubeadm_init.changed
 
     - name: Re-template kube-vip manifest with leader election enabled
       ansible.builtin.template:

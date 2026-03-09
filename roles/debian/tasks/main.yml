@@ -19,3 +19,10 @@
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
     use: systemd
+
+- name: Ensure hostname resolves in /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^\s*127\.0\.1\.1\s'
+    line: "127.0.1.1 {{ inventory_hostname }}"
+    state: present
