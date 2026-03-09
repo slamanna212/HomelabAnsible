@@ -16,7 +16,7 @@
 # Play 3: Initialize the first control plane node
 # -----------------------------------------------------------------------------
 - name: Initialize first control plane node
-  hosts: k8control[0]
+  hosts: slama-read-k8ctrl01v
   become: true
   tasks:
     - name: Check if cluster is already initialized
@@ -98,7 +98,7 @@
 # Play 4: Join the remaining control plane nodes
 # -----------------------------------------------------------------------------
 - name: Join additional control plane nodes
-  hosts: k8control[1:]
+  hosts: k8control:!slama-read-k8ctrl01v
   become: true
   tasks:
     - name: Check if node is already joined
