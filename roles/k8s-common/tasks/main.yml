@@ -87,7 +87,7 @@
 - name: Generate default containerd config
   ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
   args:
-    creates: /etc/containerd/config.toml
+    executable: /bin/bash
   notify: Restart containerd
   changed_when: false
 
