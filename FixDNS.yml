@@ -1,0 +1,15 @@
+---
+- hosts: os_debian
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Set gateway as base DNS in resolvconf
+      ansible.builtin.copy:
+        content: "nameserver {{ ansible_default_ipv4.gateway }}\n"
+        dest: /etc/resolvconf/resolv.conf.d/base
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Regenerate resolv.conf
+      ansible.builtin.command: resolvconf -u
