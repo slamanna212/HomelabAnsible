@@ -281,7 +281,7 @@
       ansible.builtin.shell: >
         kubectl wait --namespace metallb-system
         --for=condition=ready pod
-        --selector=app=metallb
+        --selector=app.kubernetes.io/name=metallb
         --timeout=90s
       changed_when: false
 
