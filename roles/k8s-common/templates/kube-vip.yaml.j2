@@ -23,7 +23,7 @@ spec:
     - name: vip_ddns
       value: "false"
     - name: svc_enable
-      value: "true"
+      value: "{{ kube_vip_svc_enable | default('true') }}"
     - name: vip_leaderelection
       value: "{{ kube_vip_leaderelection | default('true') }}"
     - name: vip_leaseduration

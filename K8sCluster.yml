@@ -64,6 +64,7 @@
         mode: '0644'
       vars:
         kube_vip_leaderelection: "false"
+        kube_vip_svc_enable: "false"
       when: not cluster_initialized
 
     - name: Template kube-vip static pod manifest (already initialized)
