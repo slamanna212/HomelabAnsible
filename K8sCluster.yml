@@ -450,7 +450,7 @@
         --create-namespace
         --set redis.image.repository=redis
         --set redis.image.tag=7.4-alpine
-        --set server.insecure=true
+        --set 'configs.params.server\.insecure=true'
         --wait --timeout 10m
       register: argocd_deploy
       changed_when: "'already up-to-date' not in argocd_deploy.stdout"
