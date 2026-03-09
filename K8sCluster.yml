@@ -5,7 +5,6 @@
   roles:
     - debian
     - k8s-common
-    - zabbix-agent
 
 - name: Prepare worker nodes for Longhorn storage
   hosts: k8work
