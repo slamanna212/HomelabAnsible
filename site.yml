@@ -60,6 +60,12 @@
   roles:
     - haproxy
 
+- name: Configure and maintain Kubernetes hosts
+  hosts: k8s
+  become: true
+  roles:
+    - k8s-common
+
 - name: End of Job Monitoring
   hosts: localhost
   tasks:

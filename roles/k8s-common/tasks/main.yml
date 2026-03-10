@@ -15,6 +15,25 @@
     regexp: '^([^#].*\sswap\s.*)$'
     replace: '# \1'
 
+- name: Find active systemd swap units
+  ansible.builtin.find:
+    paths: /run/systemd/units
+    patterns: "*.swap"
+  register: swap_units
+
+- name: Mask systemd swap units
+  ansible.builtin.systemd:
+    name: "{{ item.path | basename }}"
+    masked: true
+    daemon_reload: true
+  loop: "{{ swap_units.files }}"
+
+- name: Mask swap.target
+  ansible.builtin.systemd:
+    name: swap.target
+    masked: true
+    daemon_reload: true
+
 # ===== Kernel modules =====
 - name: Load kernel modules at boot
   ansible.builtin.copy:
