@@ -201,6 +201,11 @@
         path: /etc/kubernetes/kubelet.conf
       register: kubelet_conf
 
+    - name: Stat super-admin.conf
+      ansible.builtin.stat:
+        path: /etc/kubernetes/super-admin.conf
+      register: super_admin_stat
+
     - name: Create manifests directory
       ansible.builtin.file:
         path: /etc/kubernetes/manifests
@@ -216,6 +221,28 @@
     - name: Join as control plane node
       ansible.builtin.shell: "{{ hostvars['K8S_JOIN_DATA']['control_join_command'] }}"
       when: not kubelet_conf.stat.exists
+
+    - name: Remove super-admin.conf if it is a directory
+      ansible.builtin.file:
+        path: /etc/kubernetes/super-admin.conf
+        state: absent
+      when: super_admin_stat.stat.exists and super_admin_stat.stat.isdir
+
+    - name: Slurp super-admin.conf from first control plane
+      ansible.builtin.slurp:
+        src: /etc/kubernetes/super-admin.conf
+      register: super_admin_conf_content
+      delegate_to: slama-read-k8ctrl01v
+      when: not super_admin_stat.stat.exists or super_admin_stat.stat.isdir
+
+    - name: Write super-admin.conf on joining control plane node
+      ansible.builtin.copy:
+        content: "{{ super_admin_conf_content.content | b64decode }}"
+        dest: /etc/kubernetes/super-admin.conf
+        mode: '0600'
+        owner: root
+        group: root
+      when: not super_admin_stat.stat.exists or super_admin_stat.stat.isdir
 
 # -----------------------------------------------------------------------------
 # Play 5: Join worker nodes
