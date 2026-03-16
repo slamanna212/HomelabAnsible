@@ -258,19 +258,14 @@
         replace: '--listen-metrics-urls=http://0.0.0.0:2381'
       register: etcd_patch
 
-    - name: Wait for etcd to restart and become healthy
-      ansible.builtin.shell: >
-        ETCDCTL_API=3 etcdctl
-        --endpoints=https://127.0.0.1:2379
-        --cacert=/etc/kubernetes/pki/etcd/ca.crt
-        --cert=/etc/kubernetes/pki/etcd/server.crt
-        --key=/etc/kubernetes/pki/etcd/server.key
-        endpoint health
+    - name: Wait for etcd metrics endpoint to become available
+      ansible.builtin.uri:
+        url: http://127.0.0.1:2381/metrics
+        status_code: 200
       register: etcd_health
-      until: etcd_health.rc == 0
+      until: etcd_health.status == 200
       retries: 15
       delay: 5
-      changed_when: false
       when: etcd_patch.changed
 
 # -----------------------------------------------------------------------------
