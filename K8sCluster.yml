@@ -245,7 +245,36 @@
       when: not super_admin_stat.stat.exists or super_admin_stat.stat.isdir
 
 # -----------------------------------------------------------------------------
-# Play 5: Join worker nodes
+# Play 5: Fix etcd metrics listen address on all control plane nodes
+# -----------------------------------------------------------------------------
+- name: Fix etcd metrics listen address
+  hosts: k8control
+  become: true
+  tasks:
+    - name: Patch etcd manifest to listen on all interfaces for metrics
+      ansible.builtin.replace:
+        path: /etc/kubernetes/manifests/etcd.yaml
+        regexp: '--listen-metrics-urls=http://127\.0\.0\.1:2381'
+        replace: '--listen-metrics-urls=http://0.0.0.0:2381'
+      register: etcd_patch
+
+    - name: Wait for etcd to restart and become healthy
+      ansible.builtin.shell: >
+        ETCDCTL_API=3 etcdctl
+        --endpoints=https://127.0.0.1:2379
+        --cacert=/etc/kubernetes/pki/etcd/ca.crt
+        --cert=/etc/kubernetes/pki/etcd/server.crt
+        --key=/etc/kubernetes/pki/etcd/server.key
+        endpoint health
+      register: etcd_health
+      until: etcd_health.rc == 0
+      retries: 15
+      delay: 5
+      changed_when: false
+      when: etcd_patch.changed
+
+# -----------------------------------------------------------------------------
+# Play 6: Join worker nodes
 # -----------------------------------------------------------------------------
 - name: Join worker nodes
   hosts: k8work
@@ -261,7 +290,7 @@
       when: not kubelet_conf.stat.exists
 
 # -----------------------------------------------------------------------------
-# Play 6: Deploy cluster applications via Helm (runs from ctrl01)
+# Play 7: Deploy cluster applications via Helm (runs from ctrl01)
 # -----------------------------------------------------------------------------
 - name: Deploy cluster applications
   hosts: k8control[0]
