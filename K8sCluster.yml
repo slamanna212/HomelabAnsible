@@ -91,6 +91,12 @@
           networking:
             podSubnet: "{{ k8s_pod_cidr }}"
             serviceSubnet: "{{ k8s_service_cidr }}"
+          controllerManager:
+            extraArgs:
+              bind-address: "0.0.0.0"
+          scheduler:
+            extraArgs:
+              bind-address: "0.0.0.0"
       when: not cluster_initialized
 
     - name: Initialize Kubernetes cluster (core phases)
@@ -267,6 +273,27 @@
       retries: 15
       delay: 5
       when: etcd_patch.changed
+
+# -----------------------------------------------------------------------------
+# Play 5b: Fix kube-controller-manager and kube-scheduler metrics bind address
+# -----------------------------------------------------------------------------
+- name: Fix kube-controller-manager and kube-scheduler metrics bind address
+  hosts: k8control
+  become: true
+  tasks:
+    - name: Patch kube-controller-manager manifest to listen on all interfaces
+      ansible.builtin.replace:
+        path: /etc/kubernetes/manifests/kube-controller-manager.yaml
+        regexp: '--bind-address=127\.0\.0\.1'
+        replace: '--bind-address=0.0.0.0'
+      register: kcm_patch
+
+    - name: Patch kube-scheduler manifest to listen on all interfaces
+      ansible.builtin.replace:
+        path: /etc/kubernetes/manifests/kube-scheduler.yaml
+        regexp: '--bind-address=127\.0\.0\.1'
+        replace: '--bind-address=0.0.0.0'
+      register: ks_patch
 
 # -----------------------------------------------------------------------------
 # Play 6: Join worker nodes
