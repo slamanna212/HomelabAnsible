@@ -223,6 +223,8 @@
         src: roles/k8s-common/templates/kube-vip.yaml.j2
         dest: /etc/kubernetes/manifests/kube-vip.yaml
         mode: '0644'
+      vars:
+        kube_vip_svc_enable: "false"
 
     - name: Join as control plane node
       ansible.builtin.shell: "{{ hostvars['K8S_JOIN_DATA']['control_join_command'] }}"
