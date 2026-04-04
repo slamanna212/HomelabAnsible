@@ -333,6 +333,7 @@
         --set kubeProxyReplacement=true
         --set k8sServiceHost={{ k8s_vip }}
         --set k8sServicePort=6443
+        --set nodePort.enableHealthCheckLoadBalancerIP=true
         --wait --timeout 5m
       register: cilium_deploy
       changed_when: "'already up-to-date' not in cilium_deploy.stdout"
