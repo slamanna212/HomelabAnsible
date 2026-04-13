@@ -25,6 +25,7 @@
   become: true
   community.general.timezone:
     name: America/New_York
+  when: inventory_hostname | lower not in ['slama-read-dev02v', 'slama-read-ana01v']
 
 - name: Set system hostname from Proxmox VM name
   ansible.builtin.hostname:
