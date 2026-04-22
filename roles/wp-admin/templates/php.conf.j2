@@ -4,9 +4,8 @@ location ~ \.php$ {
         fastcgi_pass unix:/run/php/php{{ php_version }}-fpm.sock;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_cache $cache;
-        fastcgi_cache_valid 60m;
-        add_header X-FastCGI-Cache $upstream_cache_status;
+        fastcgi_no_cache 1;
+        fastcgi_cache_bypass 1;
         include fastcgi_params;
 
     }

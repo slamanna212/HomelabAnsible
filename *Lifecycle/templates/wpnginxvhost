@@ -14,6 +14,10 @@ server {
         location = /favicon.ico { log_not_found off; access_log off; }
         location = /robots.txt { log_not_found off; access_log off; allow all; }
 
+        # Block WordPress installer/setup scripts from being accessed directly
+        location ~* /wp-admin/setup-config\.php { deny all; }
+        location ~* /wp-config-sample\.php { deny all; }
+
         include /etc/nginx/snippets/php.conf;
         include /mnt/Web/Snippets/fastcgicache.conf;
         include /mnt/Web/Snippets/cache-control.conf;
