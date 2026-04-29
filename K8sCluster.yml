@@ -432,6 +432,10 @@
       ansible.builtin.shell: helm repo add longhorn https://charts.longhorn.io
       changed_when: false
 
+    - name: Update Longhorn Helm repo
+      ansible.builtin.shell: helm repo update longhorn
+      changed_when: false
+
     - name: Deploy Longhorn
       ansible.builtin.shell: >
         helm upgrade --install longhorn longhorn/longhorn
