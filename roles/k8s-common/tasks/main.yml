@@ -103,12 +103,18 @@
     state: directory
     mode: '0755'
 
+- name: Check if containerd config needs initialization
+  ansible.builtin.shell: grep -q 'SystemdCgroup = true' /etc/containerd/config.toml 2>/dev/null && echo 'ok' || echo 'init'
+  register: containerd_config_state
+  changed_when: false
+
 - name: Generate default containerd config
   ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
   args:
     executable: /bin/bash
+  when: containerd_config_state.stdout == 'init'
+  changed_when: true
   notify: Restart containerd
-  changed_when: false
 
 - name: Enable SystemdCgroup in containerd config
   ansible.builtin.replace:
@@ -124,10 +130,9 @@
     replace: 'sandbox_image = "registry.k8s.io/pause:3.10"'
   notify: Restart containerd
 
-- name: Restart and enable containerd
+- name: Enable containerd service
   ansible.builtin.service:
     name: containerd
-    state: restarted
     enabled: true
 
 # ===== Kubernetes packages =====
