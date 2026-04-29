@@ -444,6 +444,7 @@
         --version 1.11.1
         --set defaultSettings.defaultDataPath=/var/lib/longhorn
         --set defaultSettings.replicaZoneSoftAntiAffinity=false
+        --set defaultSettings.concurrentAutomaticEngineUpgradePerNodeLimit=3
         --wait --timeout 10m
       register: longhorn_deploy
       changed_when: "'already up-to-date' not in longhorn_deploy.stdout"
