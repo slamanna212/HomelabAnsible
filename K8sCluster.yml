@@ -78,6 +78,8 @@
         src: roles/k8s-common/templates/kube-vip.yaml.j2
         dest: /etc/kubernetes/manifests/kube-vip.yaml
         mode: '0644'
+      vars:
+        kube_vip_svc_enable: "false"
       when: cluster_initialized
 
     - name: Generate kubeadm config file
@@ -141,6 +143,8 @@
         src: roles/k8s-common/templates/kube-vip.yaml.j2
         dest: /etc/kubernetes/manifests/kube-vip.yaml
         mode: '0644'
+      vars:
+        kube_vip_svc_enable: "false"
       when: kubeadm_init.changed
 
     - name: Apply kube-vip RBAC
@@ -343,18 +347,6 @@
     - name: Wait for all nodes to be Ready
       ansible.builtin.shell: kubectl wait --for=condition=Ready nodes --all --timeout=300s
       changed_when: false
-
-    - name: Label worker nodes with physical host zone
-      ansible.builtin.shell: >
-        kubectl label node {{ item.node | lower }}
-        topology.kubernetes.io/zone={{ item.zone }}
-        --overwrite
-      loop:
-        - { node: "slama-read-k8work01v", zone: "rapture" }
-        - { node: "slama-read-k8work02v", zone: "rapture" }
-        - { node: "slama-read-k8work03v", zone: "wave1" }
-        - { node: "slama-read-k8work04v", zone: "minerva" }
-      changed_when: true
 
     # --- MetalLB ---
     - name: Add MetalLB Helm repo
