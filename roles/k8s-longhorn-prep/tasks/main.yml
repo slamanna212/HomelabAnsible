@@ -19,23 +19,34 @@
     state: directory
     mode: '0750'
 
-# ===== SATA tier (separate 150GB SATA SSD) =====
-# longhorn_sata_disk defaults to 'sdb' — override per-host in host_vars/ if needed
+# ===== SATA tier (separate disk, auto-discovered as first disk with no partitions) =====
 - name: Check if SATA mount point is already mounted
   ansible.builtin.command: mountpoint -q /var/lib/longhorn-sata
   register: sata_mounted
   changed_when: false
   failed_when: false
 
+- name: Auto-discover SATA disk (first block disk with no partition children)
+  ansible.builtin.shell: |
+    lsblk -dno NAME,TYPE | awk '$2=="disk" {print $1}' | while read disk; do
+      if ! lsblk -no TYPE /dev/$disk 2>/dev/null | grep -q '^part$'; then
+        echo "/dev/$disk"
+        break
+      fi
+    done
+  register: discovered_sata_disk
+  changed_when: false
+  when: sata_mounted.rc != 0
+
 - name: Check SATA disk filesystem type
-  ansible.builtin.command: blkid -s TYPE -o value /dev/{{ longhorn_sata_disk }}
+  ansible.builtin.command: blkid -s TYPE -o value {{ discovered_sata_disk.stdout | trim }}
   register: sata_fstype
   changed_when: false
   failed_when: false
   when: sata_mounted.rc != 0
 
 - name: Format SATA disk as XFS
-  ansible.builtin.command: mkfs.xfs -f /dev/{{ longhorn_sata_disk }}
+  ansible.builtin.command: mkfs.xfs -f {{ discovered_sata_disk.stdout | trim }}
   when: sata_mounted.rc != 0 and (sata_fstype.stdout | trim) != 'xfs'
   changed_when: sata_mounted.rc != 0 and (sata_fstype.stdout | trim) != 'xfs'
 
@@ -46,7 +57,7 @@
     mode: '0750'
 
 - name: Get SATA disk UUID
-  ansible.builtin.command: blkid -s UUID -o value /dev/{{ longhorn_sata_disk }}
+  ansible.builtin.command: blkid -s UUID -o value {{ discovered_sata_disk.stdout | trim }}
   register: sata_uuid
   changed_when: false
   when: sata_mounted.rc != 0
