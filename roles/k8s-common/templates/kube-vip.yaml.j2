@@ -27,11 +27,11 @@ spec:
     - name: vip_leaderelection
       value: "{{ kube_vip_leaderelection | default('true') }}"
     - name: vip_leaseduration
-      value: "5"
+      value: "15"
     - name: vip_renewdeadline
-      value: "3"
+      value: "10"
     - name: vip_retryperiod
-      value: "1"
+      value: "2"
     - name: address
       value: {{ k8s_vip }}
     image: ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }}
