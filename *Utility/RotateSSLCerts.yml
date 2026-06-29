@@ -8,6 +8,12 @@
         timeout: 10
         force: true
 
+- name: Deploy Bitwarden cert rotation hook script
+  hosts: bitwarden
+  become: true
+  roles:
+    - bitwarden
+
 - name: Rotate Let's Encrypt certificates via Cloudflare DNS-01
   hosts: letsencrypt
   become: true

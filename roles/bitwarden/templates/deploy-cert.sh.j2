@@ -1,0 +1,17 @@
+#!/bin/bash
+# Managed by Ansible - do not edit by hand.
+# Invoked by certbot's --deploy-hook (see roles/letsencrypt-cloudflare) only
+# when a certificate has actually been issued/renewed.
+set -euo pipefail
+
+CERT_NAME="{{ bitwarden_letsencrypt_cert_name }}"
+DOMAIN="{{ bitwarden_domain }}"
+SSL_DIR="{{ bitwarden_install_dir }}/bwdata/ssl/${DOMAIN}"
+
+mkdir -p "${SSL_DIR}"
+cp "/etc/letsencrypt/live/${CERT_NAME}/fullchain.pem" "${SSL_DIR}/${DOMAIN}.crt"
+cp "/etc/letsencrypt/live/${CERT_NAME}/privkey.pem" "${SSL_DIR}/${DOMAIN}.key"
+chmod 644 "${SSL_DIR}/${DOMAIN}.crt"
+chmod 600 "${SSL_DIR}/${DOMAIN}.key"
+
+"{{ bitwarden_install_dir }}/bitwarden.sh" restart

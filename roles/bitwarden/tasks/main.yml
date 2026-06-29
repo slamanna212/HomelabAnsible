@@ -1,0 +1,8 @@
+---
+- name: Deploy Bitwarden cert rotation script
+  ansible.builtin.template:
+    src: deploy-cert.sh.j2
+    dest: /usr/local/sbin/deploy-bitwarden-cert.sh
+    owner: root
+    group: root
+    mode: '0700'

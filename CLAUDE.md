@@ -75,6 +75,7 @@ The repository is expanding to manage the entire home network across multiple ne
 - `zabbix-agent`: Monitoring agent installation
 - `control`: Control server configuration
 - `letsencrypt-cloudflare`: Issues/renews Let's Encrypt certs via certbot's DNS-01 Cloudflare plugin; opt in per host via `letsencrypt_certificates` in host_vars, targeted via the `letsencrypt` host group
+- `bitwarden`: Drops a deploy-hook script that copies renewed certs into the official self-hosted Bitwarden's `bwdata/ssl/` and runs `bitwarden.sh restart`; targeted via the `bitwarden` host group
 
 ### Host Groups
 

@@ -62,3 +62,18 @@ Uses `certbot` with the `certbot-dns-cloudflare` plugin, so certs can be issued 
        deploy_hook: "systemctl reload nginx"    # optional, only runs when the cert actually changes
    ```
 3. Set `CloudflareApiToken` (scoped to `Zone:DNS:Edit` on the relevant zone only) and `LetsEncryptEmail` in the Semaphore Variable Group, per `extra_vars_TEMPLATE.yml`.
+
+#### Bitwarden example
+The official [self-hosted Bitwarden Linux install](https://bitwarden.com/help/install-on-premise-linux/) expects its cert/key at `<install_dir>/bwdata/ssl/<domain>/<domain>.crt` and `.key`, then needs `bitwarden.sh restart` to pick them up. The `bitwarden` role drops a small script that does exactly that, wired up as the cert's `deploy_hook` so it only runs when the cert actually renews.
+
+Tag the Bitwarden host with both the `letsencrypt` and `bitwarden` Proxmox tags, then in its `host_vars`:
+```yaml
+bitwarden_domain: vault.slamautils.com   # exact FQDN bitwarden.sh was configured with
+# bitwarden_install_dir: /opt/bitwarden   # only needed if you installed somewhere else
+
+letsencrypt_certificates:
+  - name: bitwarden
+    domains:
+      - "*.slamautils.com"
+    deploy_hook: "/usr/local/sbin/deploy-bitwarden-cert.sh"
+```
