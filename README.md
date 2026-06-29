@@ -47,3 +47,18 @@ Currently these playbooks assume a couple things, this is being worked on and th
  - `ClearNginxCache.yml` - Clears the FastCGI cache for a website. Useful to run this after making big changes to a site.
  - `ReloadWeb.yml` - Reloads the configuration for all of the Web and WPAdmin servers. Run after making nginx config changes. 
  - `WordpressUpdater.yml` - Updates all Plugins, all Themes, and the core Wordpress version for all WordPress sites on the cluster. *Meant to be run on a schedule/cron. Daily*
+ - `RotateSSLCerts.yml` - Issues/renews Let's Encrypt certificates via DNS-01 validation against the Cloudflare API (no port 80/443 required). *Meant to be run on a schedule/cron. Weekly*
+
+### SSL Certificate Rotation (`RotateSSLCerts.yml`)
+Uses `certbot` with the `certbot-dns-cloudflare` plugin, so certs can be issued for hosts that aren't internet-reachable on port 80/443 - Cloudflare DNS is used to satisfy the ACME challenge instead.
+
+1. Tag any host that needs a cert with the Proxmox tag `letsencrypt` (this becomes the `letsencrypt` inventory group).
+2. Define a `letsencrypt_certificates` list in that host's `host_vars`:
+   ```yaml
+   letsencrypt_certificates:
+     - name: zabbix                            # cert lives at /etc/letsencrypt/live/<name>/
+       domains:
+         - zabbix.example.com
+       deploy_hook: "systemctl reload nginx"    # optional, only runs when the cert actually changes
+   ```
+3. Set `CloudflareApiToken` (scoped to `Zone:DNS:Edit` on the relevant zone only) and `LetsEncryptEmail` in the Semaphore Variable Group, per `extra_vars_TEMPLATE.yml`.

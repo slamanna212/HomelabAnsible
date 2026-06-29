@@ -1,0 +1,14 @@
+---
+# How long to wait for the Cloudflare TXT record to propagate before
+# Let's Encrypt is asked to validate the DNS-01 challenge.
+letsencrypt_dns_propagation_seconds: 30
+
+# Per-host list of certificates to issue/renew. Define this in host_vars
+# for any host that needs a cert, e.g.:
+#
+# letsencrypt_certificates:
+#   - name: zabbix                       # becomes /etc/letsencrypt/live/<name>/
+#     domains:
+#       - zabbix.example.com
+#     deploy_hook: "systemctl reload nginx"   # optional, only runs when the cert actually changes
+letsencrypt_certificates: []

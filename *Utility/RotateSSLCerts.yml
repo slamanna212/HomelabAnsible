@@ -1,0 +1,24 @@
+---
+- name: Start of Job Monitoring
+  hosts: localhost
+  tasks:
+    - name: Tell Healthchecks.io that we started the playbook
+      ansible.builtin.uri:
+        url: "{{ RotateSSLCertsHC }}/start"
+        timeout: 10
+        force: true
+
+- name: Rotate Let's Encrypt certificates via Cloudflare DNS-01
+  hosts: letsencrypt
+  become: true
+  roles:
+    - letsencrypt-cloudflare
+
+- name: End of Job Monitoring
+  hosts: localhost
+  tasks:
+    - name: Tell Healthchecks.io that we finished the playbook
+      ansible.builtin.uri:
+        url: "{{ RotateSSLCertsHC }}"
+        timeout: 10
+        force: true
