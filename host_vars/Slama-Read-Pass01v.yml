@@ -1,0 +1,9 @@
+---
+bitwarden_domain: valkyrie.slamautils.com
+# bitwarden_install_dir: /opt/bitwarden   # default, uncomment to override
+
+letsencrypt_certificates:
+  - name: bitwarden
+    domains:
+      - "*.slamautils.com"
+    deploy_hook: "/usr/local/sbin/deploy-bitwarden-cert.sh"
