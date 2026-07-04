@@ -1,18 +1,18 @@
 ---
-# Dumps Proxmox inventory data for a host without connecting to it.
-# Run with extra var: DiagnoseHost=Slama-Read-Pass01v
-- name: Diagnose Proxmox inventory resolution for a host
+- name: Diagnose Proxmox inventory resolution for Slama-Read-Pass01v
   hosts: localhost
   gather_facts: false
+  vars:
+    target_host: Slama-Read-Pass01v
   tasks:
     - name: Resolved ansible_host
       ansible.builtin.debug:
-        msg: "ansible_host = '{{ hostvars[DiagnoseHost]['ansible_host'] | default('EMPTY - this is your problem') }}'"
+        msg: "ansible_host = '{{ hostvars[target_host]['ansible_host'] | default('EMPTY - this is your problem') }}'"
 
     - name: All proxmox_agent_interfaces (index matters - compose uses [1])
       ansible.builtin.debug:
         msg: "interface[{{ idx }}]: name={{ iface.name }} ips={{ iface['ip-addresses'] | default([]) }}"
-      loop: "{{ hostvars[DiagnoseHost]['proxmox_agent_interfaces'] | default([]) }}"
+      loop: "{{ hostvars[target_host]['proxmox_agent_interfaces'] | default([]) }}"
       loop_control:
         index_var: idx
         label: "{{ iface.name }}"
@@ -20,11 +20,11 @@
 
     - name: proxmox_net0 (LXC fallback path)
       ansible.builtin.debug:
-        var: hostvars[DiagnoseHost]['proxmox_net0']
+        var: hostvars[target_host]['proxmox_net0']
 
     - name: All proxmox_ vars
       ansible.builtin.debug:
         msg: "{{ item.key }}: {{ item.value }}"
-      loop: "{{ hostvars[DiagnoseHost] | dict2items | selectattr('key', 'match', '^proxmox_') | list }}"
+      loop: "{{ hostvars[target_host] | dict2items | selectattr('key', 'match', '^proxmox_') | list }}"
       loop_control:
         label: "{{ item.key }}"
