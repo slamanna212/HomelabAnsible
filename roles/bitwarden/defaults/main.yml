@@ -1,6 +1,6 @@
 ---
 # Path the official bitwarden.sh installer was run from (contains bitwarden.sh and bwdata/)
-bitwarden_install_dir: /opt/bitwarden
+bitwarden_install_dir: /home/bitwarden
 
 # Must match the `name` used in this host's letsencrypt_certificates entry,
 # so the deploy script knows which /etc/letsencrypt/live/<name>/ to pull from.

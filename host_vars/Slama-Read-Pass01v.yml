@@ -1,6 +1,6 @@
 ---
 bitwarden_domain: valkyrie.slamautils.com
-# bitwarden_install_dir: /opt/bitwarden   # default, uncomment to override
+# bitwarden_install_dir: /home/bitwarden   # default
 
 letsencrypt_certificates:
   - name: bitwarden

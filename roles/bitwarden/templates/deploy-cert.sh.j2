@@ -6,12 +6,12 @@ set -euo pipefail
 
 CERT_NAME="{{ bitwarden_letsencrypt_cert_name }}"
 DOMAIN="{{ bitwarden_domain }}"
-SSL_DIR="{{ bitwarden_install_dir }}/bwdata/ssl/${DOMAIN}"
+SSL_DIR="{{ bitwarden_install_dir }}/bwdata/ssl/self/${DOMAIN}"
 
 mkdir -p "${SSL_DIR}"
-cp "/etc/letsencrypt/live/${CERT_NAME}/fullchain.pem" "${SSL_DIR}/${DOMAIN}.crt"
-cp "/etc/letsencrypt/live/${CERT_NAME}/privkey.pem" "${SSL_DIR}/${DOMAIN}.key"
-chmod 644 "${SSL_DIR}/${DOMAIN}.crt"
-chmod 600 "${SSL_DIR}/${DOMAIN}.key"
+cp "/etc/letsencrypt/live/${CERT_NAME}/fullchain.pem" "${SSL_DIR}/certificate.crt"
+cp "/etc/letsencrypt/live/${CERT_NAME}/privkey.pem" "${SSL_DIR}/private.key"
+chmod 644 "${SSL_DIR}/certificate.crt"
+chmod 600 "${SSL_DIR}/private.key"
 
 "{{ bitwarden_install_dir }}/bitwarden.sh" restart

@@ -69,7 +69,7 @@ The official [self-hosted Bitwarden Linux install](https://bitwarden.com/help/in
 Tag the Bitwarden host with both the `letsencrypt` and `bitwarden` Proxmox tags, then in its `host_vars`:
 ```yaml
 bitwarden_domain: vault.slamautils.com   # exact FQDN bitwarden.sh was configured with
-# bitwarden_install_dir: /opt/bitwarden   # only needed if you installed somewhere else
+# bitwarden_install_dir: /home/bitwarden  # default, override if installed elsewhere
 
 letsencrypt_certificates:
   - name: bitwarden
