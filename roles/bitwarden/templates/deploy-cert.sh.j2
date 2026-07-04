@@ -14,4 +14,4 @@ cp "/etc/letsencrypt/live/${CERT_NAME}/privkey.pem" "${SSL_DIR}/private.key"
 chmod 644 "${SSL_DIR}/certificate.crt"
 chmod 600 "${SSL_DIR}/private.key"
 
-"{{ bitwarden_install_dir }}/bitwarden.sh" restart
+sudo -u bitwarden "{{ bitwarden_install_dir }}/bitwarden.sh" restart
