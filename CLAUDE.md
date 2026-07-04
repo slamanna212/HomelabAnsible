@@ -60,6 +60,7 @@ The repository is expanding to manage the entire home network across multiple ne
 - `WordpressUpdater.yml`: Update all WP plugins, themes, and core (runs nightly)
 - `ClearNginxCache.yml`: Clear FastCGI cache after major site changes
 - `ReloadWeb.yml`: Reload nginx config on web/wp-admin servers
+- `RotateSSLCerts.yml`: Issue/renew Let's Encrypt certs via Cloudflare DNS-01 challenge (no port 80/443 exposure needed); intended to run weekly
 
 ### Roles
 
@@ -73,6 +74,8 @@ The repository is expanding to manage the entire home network across multiple ne
 - `nfs-client`: NFS client mount configuration
 - `zabbix-agent`: Monitoring agent installation
 - `control`: Control server configuration
+- `letsencrypt-cloudflare`: Issues/renews Let's Encrypt certs via certbot's DNS-01 Cloudflare plugin; opt in per host via `letsencrypt_certificates` in host_vars, targeted via the `letsencrypt` host group
+- `bitwarden`: Drops a deploy-hook script that copies renewed certs into the official self-hosted Bitwarden's `bwdata/ssl/` and runs `bitwarden.sh restart`; targeted via the `bitwarden` host group
 
 ### Host Groups
 

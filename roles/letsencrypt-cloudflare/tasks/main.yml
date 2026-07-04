@@ -1,0 +1,38 @@
+---
+- name: Install certbot and the Cloudflare DNS plugin
+  ansible.builtin.apt:
+    name: "{{ sys_packages }}"
+    state: present
+    update_cache: true
+
+- name: Disable certbot's built-in renewal timer
+  ansible.builtin.systemd:
+    name: certbot.timer
+    enabled: false
+    state: stopped
+  failed_when: false
+
+- name: Deploy Cloudflare API credentials for DNS-01 challenges
+  ansible.builtin.template:
+    src: cloudflare-credentials.ini.j2
+    dest: /etc/letsencrypt/cloudflare.ini
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Request/renew certificates via Let's Encrypt DNS-01 (Cloudflare)
+  ansible.builtin.command:
+    cmd: >-
+      certbot certonly --non-interactive --agree-tos --expand
+      --email {{ LetsEncryptEmail }}
+      --dns-cloudflare
+      --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini
+      --dns-cloudflare-propagation-seconds {{ letsencrypt_dns_propagation_seconds }}
+      --cert-name {{ item.name }}
+      {% for domain in item.domains %}-d {{ domain }} {% endfor %}
+      {% if item.deploy_hook is defined %}--deploy-hook "{{ item.deploy_hook }}"{% endif %}
+  register: certbot_result
+  changed_when: "'no action taken' not in certbot_result.stdout"
+  loop: "{{ letsencrypt_certificates }}"
+  loop_control:
+    label: "{{ item.name }}"

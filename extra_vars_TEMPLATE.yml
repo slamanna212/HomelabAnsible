@@ -2,5 +2,10 @@
 #Healthchecks.io
 WordpressUpdaterHC: https://hc-ping.com/123123asdasd12eqsd
 SitePlaybookHC: https://hc-ping.com/as3edawdasdasdsad
+RotateSSLCertsHC: https://hc-ping.com/exampleexampleexample
 # HAProxy
 HAProxyStatsPassword: ExamplePassword
+# Let's Encrypt / Cloudflare DNS-01 cert rotation
+# CloudflareApiToken needs Zone:DNS:Edit scope on the relevant zone(s) only.
+CloudflareApiToken: ExampleCloudflareApiToken
+LetsEncryptEmail: admin@example.com
