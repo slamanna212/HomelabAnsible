@@ -134,8 +134,13 @@
       ansible.builtin.command: kubeadm init phase kubelet-finalize all --config /etc/kubernetes/kubeadm-config.yaml
       when: kubeadm_init.changed
 
-    - name: Complete kubeadm init - addon
-      ansible.builtin.command: kubeadm init phase addon all --config /etc/kubernetes/kubeadm-config.yaml
+    # Only the coredns subphase — NOT `addon all`, which also installs kube-proxy.
+    # Cilium runs with kubeProxyReplacement=true; a second kube-proxy fights it for
+    # every Service's healthCheckNodePort and desyncs conntrack on long-lived
+    # connections. See the "kube-proxy is deliberately absent" note in
+    # HomelabArgoCD/CLAUDE.md.
+    - name: Complete kubeadm init - addon (coredns only)
+      ansible.builtin.command: kubeadm init phase addon coredns --config /etc/kubernetes/kubeadm-config.yaml
       when: kubeadm_init.changed
 
     - name: Re-template kube-vip manifest with leader election enabled
